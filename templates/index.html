@@ -1,55 +1,185 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bardo Museum</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>Bardo Museum - Tunisia's Premier Archaeological Museum</title>
+    <meta name="description" content="Explore the world-renowned Bardo Museum in Tunisia, home to one of the finest collections of Roman mosaics and Classical antiquities.">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <header>
-        <nav>
-            <a href="#home">Home</a>
-            <a href="#exhibitions">Exhibitions</a>
-            <a href="#collections">Collections</a>
-            <a href="#visit">Visit</a>
-            <a href="#contact">Contact</a>
-        </nav>
+        <div class="header-inner">
+            <div class="logo">
+                <img src="/static/10.jpg" alt="Bardo Museum Logo">
+            </div>
+            <nav>
+                <a href="#home">Home</a>
+                <a href="#categories">Categories</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
     </header>
 
-    <section class="hero">
-        <img src="/static/11.jpeg" alt="Bardo Museum Interior" class="hero-image">
-        <div class="hero-overlay"></div> <!-- Add the overlay -->
-        <div class="hero-content">
-            <h1>Bardo Museum</h1>
-            <p>Discover one of the world's finest collections of Roman mosaics and Classical antiquities in Tunisia's premier museum.</p>
-        </div>
-    </section>
-
-    <section class="welcome">
-        <div class="welcome-grid">
-            <div class="welcome-content">
-                <h2>A Journey Through Time</h2>
-                <p>The Bardo Museum, located in Tunis, Tunisia, stands as one of the oldest and most prestigious museums in the world. Our halls house an extraordinary collection of Roman mosaics, Islamic art, and Carthaginian artifacts.</p>
-                <p>Each exhibit tells a story of the civilizations that shaped this region, offering visitors a unique glimpse into the rich cultural heritage of Tunisia and the Mediterranean world.</p>
+    <main>
+        <section class="hero" id="home">
+            <div class="hero-slider">
+                <img src="/static/8.jpg" alt="Bardo Museum Interior" class="hero-image">
             </div>
-            <div class="welcome-image">
-                <img src="/static/13.jpg" alt="Museum Gallery">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>Bardo Museum</h1>
+                <p>Journey Through Centuries of Mediterranean Civilization</p>
+                <a href="#categories" class="cta-button">Explore Categories</a>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="qr-section">
-        <div class="qr-content">
-            <h2>Experience Virtual Tour</h2>
-            <p>Explore our magnificent collections from anywhere in the world through our immersive virtual tour.</p>
-            <img src="/static/museum_tour_qr.png" alt="QR Code for Virtual Tour">
-        </div>
-    </section>
+        <section id="virtual-visitors" class="virtual-experience">
+            <h2>For Virtual Visitors</h2>
+            <section class="welcome">
+                <div class="welcome-grid">
+                    <div class="welcome-content">
+                        <h2>A Journey Through Time</h2>
+                        <p>The Bardo Museum, located in Tunis, Tunisia, stands as one of the oldest and most prestigious museums in the world. Our halls house an extraordinary collection of Roman mosaics, Islamic art, and Carthaginian artifacts.</p>
+                        <p>Each exhibit tells a story of the civilizations that shaped this region, offering visitors a unique glimpse into the rich cultural heritage of Tunisia and the Mediterranean world.</p>
+                    </div>
+                    <div class="welcome-image">
+                        <img src="/static/13.jpg" alt="Museum Gallery">
+                    </div>
+                </div>
+            </section>
+            <section class="qr-section">
+                <div class="qr-content">
+                    <h2>Experience Virtual Tour</h2>
+                    <p>Explore our magnificent collections from anywhere in the world through our immersive virtual tour.</p>
+                    <img src="/static/museum_tour_qr.png" alt="QR Code for Virtual Tour">
+                </div>
+            </section>
+        
+                <div class="quiz">
+                    <h3>Educational Quiz</h3>
+                    <p>Test your knowledge about the museum and its artifacts.</p>
+                    <button class="cta-button">Start Quiz</button>
+                </div>
+                
+            </div>
+        </section>
+        
+        <section id="on-site-visitors" class="on-site-engagement">
+            <h2>For On-Site Visitors</h2>
+            <div class="feedback-section">
+                <h3>Share Your Experience</h3>
+                <form id="feedback-form" class="feedback-form">
+                    <div class="form-group">
+                        <label for="visitor-name">Name</label>
+                        <input type="text" id="visitor-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="visit-date">Date of Visit</label>
+                        <input type="date" id="visit-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback-input">Your Experience</label>
+                        <textarea id="feedback-input" placeholder="Share your thoughts about your visit..." required></textarea>
+                    </div>
+                    <button type="submit" class="cta-button">Submit Feedback</button>
+                </form>
+            </div>
+            <div class="sentiment-analysis">
+                <h3>What Visitors Are Saying</h3>
+                <div class="feedback-results">
+                    <!-- Dynamic sentiment analysis results -->
+                </div>
+            </div>
+        </section>
+    </main>
 
     <footer>
-        <p>&copy; 2024 Bardo Museum. All rights reserved.</p>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: info@bardomuseum.tn</p>
+                <p>Phone: +216 71 513 650</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Bardo Museum. All rights reserved.</p>
+        </div>
     </footer>
+    <script>
+
+function showCustomAlert(message, isError = false) {
+    const alert = document.createElement('div');
+    alert.className = 'custom-alert';
+    if (isError) {
+        alert.style.backgroundColor = 'var(--deep-brown)';
+        alert.style.color = 'var(--primary-beige)';
+    }
+    alert.textContent = message;
+    
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        alert.style.animation = 'fadeOut 0.5s ease-in-out';
+        setTimeout(() => {
+            alert.remove();
+        }, 500);
+    }, 3000);
+}
+
+
+let lastSubmittedFeedback = null;
+document.getElementById('feedback-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    
+    const visitorName = document.getElementById('visitor-name').value;
+    const visitDate = document.getElementById('visit-date').value;
+    const feedbackText = document.getElementById('feedback-input').value;
+    
+    const feedbackData = {
+        visitor_name: visitorName,
+        visit_date: visitDate,
+        feedback_text: feedbackText
+    };
+
+    if (JSON.stringify(feedbackData) === JSON.stringify(lastSubmittedFeedback)) {
+        showCustomAlert("This feedback has already been submitted.", true);
+        return;
+    }
+
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch('/feedback', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(feedbackData)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            lastSubmittedFeedback = feedbackData;
+            showCustomAlert("Thank you for your feedback!");
+            document.getElementById('feedback-form').reset();
+        } else {
+            showCustomAlert(result.error, true);
+        }
+    } catch (error) {
+        showCustomAlert(`An error occurred: ${error.message}`, true);
+    } finally {
+        submitButton.disabled = false;
+    }
+});
+    </script>
+    
+    
+    
 </body>
 </html>
+
