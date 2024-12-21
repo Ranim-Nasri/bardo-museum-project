@@ -13,6 +13,14 @@ db.init_app(app)
 @app.route('/')
 def home():
     return render_template('index.html')
+@app.route('/categories-page')
+def categories_page():
+    try:
+        
+        categories = Category.query.all()
+        return render_template('categories.html', categories=categories)
+    except SQLAlchemyError as e:
+        return f"An error occurred: {str(e)}"
 
 
 @app.route('/categories', methods=['POST'])

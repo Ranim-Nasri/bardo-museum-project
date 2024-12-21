@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Categories</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/CategStyle.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <img src="/static/16.jpg" alt="Bardo Museum Interior" class="hero-image">
+    <div class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Explore Categories</h1>
+            <p>Discover the rich diversity of exhibits at the Bardo Museum.</p>
+        </div>
+    </div>
+
+    <!-- Categories List Section -->
+    <div class="categories-list">
+        <h2>Categories</h2>
+        {% for category in categories %}
+            <button class="cta-button" onclick="fetchCategoryDetails('{{ category.id }}')">{{ category.category_name }}</button>
+        {% endfor %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <a href="/">Back to Home</a>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        function showCustomAlert(message, isError = false) {
+            const alert = document.createElement('div');
+            alert.className = `custom-alert ${isError ? 'error' : ''}`;
+
+            // Create content div
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'alert-content';
+            contentDiv.innerHTML = message;
+
+            // Create close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'close-button';
+            closeButton.innerHTML = '×';
+            closeButton.onclick = () => {
+                alert.style.animation = 'fadeOut 0.5s ease-in-out';
+                setTimeout(() => alert.remove(), 500);
+            };
+
+            // Append elements
+            alert.appendChild(contentDiv);
+            alert.appendChild(closeButton);
+            document.body.appendChild(alert);
+
+            return alert;
+        }
+
+        async function fetchCategoryDetails(categoryId) {
+            try {
+                const response = await fetch(`/categories/${categoryId}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const category = await response.json();
+                
+                const contentHtml = `
+                    <div class="alert-line">
+                        <span class="alert-label">Category: </span>${category.category_name}
+                    </div>
+                    <div class="alert-line">
+                        <span class="alert-label">Description: </span>${category.description}
+                    </div>
+                    <div class="alert-line">
+                        <span class="alert-label">Exhibits: </span>${category.num_exhibits}
+                    </div>
+                `;
+                
+                showCustomAlert(contentHtml);
+            } catch (error) {
+                console.error('Error fetching category details:', error);
+                showCustomAlert('Unable to fetch category details. Please try again.', true);
+            }
+        }
+    </script>
+</body>
+</html>

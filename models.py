@@ -32,7 +32,7 @@ class Feedback(db.Model):
     visit_date = db.Column(db.Date, nullable=False)
     feedback_text = db.Column(db.Text, nullable=False)
     
-    # Add a unique constraint on the combination of visitor_name, visit_date, and feedback_text
+    
     __table_args__ = (
         db.UniqueConstraint('visitor_name', 'visit_date', 'feedback_text', name='unique_feedback'),
     )
