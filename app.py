@@ -13,6 +13,7 @@ db.init_app(app)
 @app.route('/')
 def home():
     return render_template('index.html')
+
 @app.route('/categories-page')
 def categories_page():
     try:

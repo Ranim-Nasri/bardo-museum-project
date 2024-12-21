@@ -49,3 +49,34 @@ class Feedback(db.Model):
             "visit_date": self.visit_date.isoformat(),
             "feedback_text": self.feedback_text,
         }
+class QuizQuestion(db.Model):
+    __tablename__ = 'quiz_questions'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    question_text = db.Column(db.Text, nullable=False)
+    option_a = db.Column(db.String(255), nullable=False)
+    option_b = db.Column(db.String(255), nullable=False)
+    option_c = db.Column(db.String(255), nullable=False)
+    option_d = db.Column(db.String(255), nullable=False)
+    correct_option = db.Column(db.String(1), nullable=False)  # Store the correct option as 'a', 'b', 'c', or 'd'
+
+    def __init__(self, question_text, option_a, option_b, option_c, option_d, correct_option):
+        self.question_text = question_text
+        self.option_a = option_a
+        self.option_b = option_b
+        self.option_c = option_c
+        self.option_d = option_d
+        self.correct_option = correct_option
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "question_text": self.question_text,
+            "options": {
+                "a": self.option_a,
+                "b": self.option_b,
+                "c": self.option_c,
+                "d": self.option_d
+            },
+            "correct_option": self.correct_option
+        }
