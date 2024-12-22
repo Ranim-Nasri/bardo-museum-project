@@ -48,6 +48,7 @@
     <!-- JavaScript -->
     <script>
 // Function to show a custom alert with a message
+// Function to show a custom alert with a message
 function showCustomAlert(message, isError = false, isLoading = false) {
     const existingAlert = document.querySelector('.custom-alert');
     if (existingAlert) {
@@ -71,7 +72,7 @@ function showCustomAlert(message, isError = false, isLoading = false) {
 
     const closeButton = document.createElement('button');
     closeButton.className = 'close-button';
-    closeButton.innerHTML = '×';
+    closeButton.innerHTML = '🤎 <span style="font-size: 10px; vertical-align: super;">Close</span>';
     closeButton.onclick = () => {
         alert.style.animation = 'fadeOut 0.5s ease-in-out';
         setTimeout(() => alert.remove(), 500);
@@ -84,20 +85,18 @@ function showCustomAlert(message, isError = false, isLoading = false) {
     return alert;
 }
 
-// Fetch data from Google Custom Search API
+// Function to fetch data from your Flask API endpoint
 async function fetchGoogleData(query) {
-    const API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'
-    const CX = '642ef41d594bc4032'
-
-    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${API_KEY}&cx=${CX}`;
+    const url = `/fetch-google-info/${encodeURIComponent(query)}`;
 
     try {
         const response = await fetch(url);
         const data = await response.json();
-
-        // Check if there are results
-        if (data.items) {
-            return data.items;  // Return the search results
+        
+        console.log("Data fetched from Flask:", data);  // Log the data for debugging
+        
+        if (data && data.length > 0) {
+            return data;
         } else {
             throw new Error('No results found');
         }
@@ -147,16 +146,24 @@ async function fetchGoogleInfo(categoryName) {
         const googleData = await fetchGoogleData(`${categoryName} Bardo Museum`);
         loadingAlert.remove();  // Remove the loading spinner
 
-        // Check if googleData and googleData.items are available
-        if (googleData && googleData.items && googleData.items.length > 0) {
-            const resultsHtml = googleData.items.map(item => `
-                <div class="alert-section">
-                    <h3 class="alert-title">${item.title}</h3>
-                    <p class="alert-description">${item.snippet}</p>
-                    <a href="${item.link}" target="_blank">Read more</a>
-                </div>
-            `).join('');
-            showCustomAlert(resultsHtml);  // Show the results
+        // Check if googleData is available and contains items
+        if (googleData && googleData.length > 0) {
+            let resultsHtml = '<h3>Results from Google:</h3>';
+
+            googleData.forEach(item => {
+                resultsHtml += `
+                    <div class="alert-section">
+                        <h4 class="alert-title">${item.title}</h4>
+                        <p class="alert-description">${item.snippet}</p>
+                        <a href="${item.link}" target="_blank">Read more</a>
+                        <br>
+                        <img src="${item.pagemap?.cse_image ? item.pagemap.cse_image[0].src : ''}" alt="${item.title}" style="width: 100px; height: 100px;">
+                    </div>
+                `;
+            });
+
+            // Show the results in the alert
+            showCustomAlert(resultsHtml);  
         } else {
             showCustomAlert('No additional information found from Google.', true);
         }

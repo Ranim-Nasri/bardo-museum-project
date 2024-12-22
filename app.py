@@ -306,7 +306,7 @@ def fetch_google_data(query):
 # Route to fetch Google Search data based on category
 @app.route('/fetch-google-info/<category_name>', methods=['GET'])
 def fetch_google_info(category_name):
-    search_query = f"{category_name}"
+    search_query = f"{category_name} Bardo Museum"
     google_data = fetch_google_data(search_query)
     if google_data and 'items' in google_data:
         print(f"Searching for: {search_query}")
