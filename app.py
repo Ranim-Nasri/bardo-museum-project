@@ -3,11 +3,16 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from models import db, Category, Feedback, QuizQuestion
 from datetime import datetime
 from random import sample
+from flask_cors import CORS
+import requests, os
+
+API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'  
+CX = '642ef41d594bc4032'
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bardo_museum.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+CORS(app) 
 
 db.init_app(app)
 
@@ -18,13 +23,11 @@ def home():
 @app.route('/categories-page')
 def categories_page():
     try:
-        
         categories = Category.query.all()
         return render_template('categories.html', categories=categories)
     except SQLAlchemyError as e:
         return f"An error occurred: {str(e)}"
-
-
+    
 @app.route('/categories', methods=['POST'])
 def add_category():
     data = request.json
@@ -276,15 +279,53 @@ def get_quiz_questions():
         # Get all questions from database
         questions = QuizQuestion.query.all()
         # Convert to list of dictionaries
-        selected_questions = sample(questions, min(5, len(questions)))
+        selected_questions = sample(questions, min(10, len(questions)))
         questions_list = [question.to_dict() for question in selected_questions]
         return jsonify(questions_list), 200
     except SQLAlchemyError as e:
         return jsonify({"error": str(e)}), 500
+    
+def fetch_google_data(query):
+    url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={API_KEY}&cx={CX}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Debugging the response
+        print("Google API response:", data)
+        
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data from Google: {e}")
+        return None
+
+
+
+
+# Route to fetch Google Search data based on category
+@app.route('/fetch-google-info/<category_name>', methods=['GET'])
+def fetch_google_info(category_name):
+    search_query = f"{category_name}"
+    google_data = fetch_google_data(search_query)
+    if google_data and 'items' in google_data:
+        print(f"Searching for: {search_query}")
+        results = google_data['items']
+        return jsonify(results), 200
+        
+    else:
+        return jsonify({"error": "No information found."}), 404
+
+
+
+
+    
 if __name__ == "__main__":
     with app.app_context():
        
         print("Creating tables...")
         db.create_all()
         print("Tables created successfully.")
+        
+
     app.run(debug=True)

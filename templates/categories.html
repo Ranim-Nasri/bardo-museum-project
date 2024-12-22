@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Explore Categories</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script async src="https://cse.google.com/cse.js?cx=642ef41d594bc4032"></script>
     <link rel="stylesheet" href="/static/CategStyle.css">
 </head>
 <body>
@@ -46,63 +47,133 @@
 
     <!-- JavaScript -->
     <script>
-        function showCustomAlert(message, isError = false) {
-            const alert = document.createElement('div');
-            alert.className = `custom-alert ${isError ? 'error' : ''}`;
+// Function to show a custom alert with a message
+function showCustomAlert(message, isError = false, isLoading = false) {
+    const existingAlert = document.querySelector('.custom-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
 
-            // Create content div
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'alert-content';
-            contentDiv.innerHTML = message;
+    const alert = document.createElement('div');
+    alert.className = `custom-alert ${isError ? 'error' : ''} ${isLoading ? 'loading' : ''}`;
 
-            // Create close button
-            const closeButton = document.createElement('button');
-            closeButton.className = 'close-button';
-            closeButton.innerHTML = '×';
-            closeButton.onclick = () => {
-                alert.style.animation = 'fadeOut 0.5s ease-in-out';
-                setTimeout(() => alert.remove(), 500);
-            };
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'alert-content';
+    
+    if (isLoading) {
+        contentDiv.innerHTML = `
+            <div class="loading-spinner"></div>
+            <p>Loading additional information...</p>
+        `;
+    } else {
+        contentDiv.innerHTML = message;
+    }
 
-            // Append elements
-            alert.appendChild(contentDiv);
-            alert.appendChild(closeButton);
-            document.body.appendChild(alert);
+    const closeButton = document.createElement('button');
+    closeButton.className = 'close-button';
+    closeButton.innerHTML = '×';
+    closeButton.onclick = () => {
+        alert.style.animation = 'fadeOut 0.5s ease-in-out';
+        setTimeout(() => alert.remove(), 500);
+    };
 
-            return alert;
+    alert.appendChild(contentDiv);
+    alert.appendChild(closeButton);
+    document.body.appendChild(alert);
+
+    return alert;
+}
+
+// Fetch data from Google Custom Search API
+async function fetchGoogleData(query) {
+    const API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'
+    const CX = '642ef41d594bc4032'
+
+    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${API_KEY}&cx=${CX}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // Check if there are results
+        if (data.items) {
+            return data.items;  // Return the search results
+        } else {
+            throw new Error('No results found');
         }
+    } catch (error) {
+        console.error('Error fetching Google data:', error);
+        return null;
+    }
+}
 
-        async function fetchCategoryDetails(categoryId) {
-            try {
-                const response = await fetch(`/categories/${categoryId}`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const category = await response.json();
-                
-                const contentHtml = `
-                    <div class="alert-line">
-                        <span class="alert-label">Category: </span>${category.category_name}
-                    </div>
-                    <div class="alert-line">
-                        <span class="alert-label">Description: </span>${category.description}
-                    </div>
-                    <div class="alert-line">
-                        <span class="alert-label">Exhibits: </span>${category.num_exhibits}
-                    </div>
-                `;
-                
-                showCustomAlert(contentHtml);
-            } catch (error) {
-                console.error('Error fetching category details:', error);
-                showCustomAlert('Unable to fetch category details. Please try again.', true);
-            }
+// Fetch category details and show the alert
+async function fetchCategoryDetails(categoryId) {
+    try {
+        const response = await fetch(`/categories/${categoryId}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
-        document.addEventListener('DOMContentLoaded', function() {
+        const category = await response.json();
+
+        const contentHtml = `
+            <div class="alert-section">
+                <h3 class="alert-title">${category.category_name}</h3>
+                <div class="alert-line">
+                    <span class="alert-label">Description: </span>${category.description}
+                </div>
+                <div class="alert-line">
+                    <span class="alert-label">Number of Exhibits: </span>${category.num_exhibits}
+                </div>
+                <button onclick="fetchGoogleInfo('${category.category_name}')" class="learn-more-btn">
+                    Learn More from Google
+                </button>
+            </div>
+        `;
+        
+        showCustomAlert(contentHtml);
+
+    } catch (error) {
+        console.error('Error:', error);
+        showCustomAlert('Unable to fetch category details. Please try again.', true);
+    }
+}
+
+// Fetch additional information from Google Custom Search API
+async function fetchGoogleInfo(categoryName) {
+    const loadingAlert = showCustomAlert('', false, true);  // Show loading spinner
+
+    try {
+        const googleData = await fetchGoogleData(`${categoryName} Bardo Museum`);
+        loadingAlert.remove();  // Remove the loading spinner
+
+        // Check if googleData and googleData.items are available
+        if (googleData && googleData.items && googleData.items.length > 0) {
+            const resultsHtml = googleData.items.map(item => `
+                <div class="alert-section">
+                    <h3 class="alert-title">${item.title}</h3>
+                    <p class="alert-description">${item.snippet}</p>
+                    <a href="${item.link}" target="_blank">Read more</a>
+                </div>
+            `).join('');
+            showCustomAlert(resultsHtml);  // Show the results
+        } else {
+            showCustomAlert('No additional information found from Google.', true);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        loadingAlert.remove();
+        showCustomAlert('Unable to fetch additional information. Please try again.', true);
+    }
+}
+
+
+// Music player functionality remains the same
+document.addEventListener('DOMContentLoaded', function() {
     const music = document.getElementById('background-music');
     const musicButton = document.getElementById('music-toggle');
     const volumeSlider = document.getElementById('volume-slider');
-    
+
     musicButton.addEventListener('click', function() {
         if (music.paused) {
             music.play();
@@ -112,14 +183,14 @@
             musicButton.classList.remove('playing');
         }
     });
-    
+
     volumeSlider.addEventListener('input', function() {
         music.volume = this.value / 100;
     });
-    
-    // Start with volume at 20%
+
     music.volume = 0.2;
 });
+
     </script>
 </body>
 </html>

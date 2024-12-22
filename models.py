@@ -58,7 +58,7 @@ class QuizQuestion(db.Model):
     option_b = db.Column(db.String(255), nullable=False)
     option_c = db.Column(db.String(255), nullable=False)
     option_d = db.Column(db.String(255), nullable=False)
-    correct_option = db.Column(db.String(1), nullable=False)  # Store the correct option as 'a', 'b', 'c', or 'd'
+    correct_option = db.Column(db.String(1), nullable=False) 
 
     def __init__(self, question_text, option_a, option_b, option_c, option_d, correct_option):
         self.question_text = question_text
