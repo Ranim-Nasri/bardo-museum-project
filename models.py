@@ -80,3 +80,24 @@ class QuizQuestion(db.Model):
             },
             "correct_option": self.correct_option
         }
+import json
+
+class Room(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    level = db.Column(db.Integer, nullable=False)
+    type = db.Column(db.String(50), nullable=False)  # 'exhibit', 'service', 'pathway'
+    connections = db.Column(db.String(200), nullable=False)  # Connections to other rooms
+
+    def __repr__(self):
+        return f"<Room {self.name} (Level {self.level})>"
+
+    @property
+    def connections_list(self):
+        """Deserialize the connections string into a list."""
+        return json.loads(self.connections)
+
+    @connections_list.setter
+    def connections_list(self, value):
+        """Serialize the list of connections into a string."""
+        self.connections = json.dumps(value)

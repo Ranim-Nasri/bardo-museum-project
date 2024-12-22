@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from models import db, Category, Feedback, QuizQuestion
+from models import db, Category, Feedback, QuizQuestion, Room
 from datetime import datetime
 from random import sample
 from flask_cors import CORS
-import requests, os
+import requests
 
 API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'  
 CX = '642ef41d594bc4032'
@@ -316,7 +316,93 @@ def fetch_google_info(category_name):
     else:
         return jsonify({"error": "No information found."}), 404
 
+@app.route('/rooms', methods=['POST'])
+def add_rooms():
+    try:
+        data = request.get_json()  # Get the JSON data from the request
+        
+        if isinstance(data, list):  # If it's a list of rooms
+            rooms = []  # A list to hold Room instances
+            for room in data:
+                new_room = Room(
+                    name=room["name"],
+                    level=room["level"],
+                    type=room["type"],
+                    connections_list=room["connections"]  # Use connections_list setter
+                )
+                rooms.append(new_room)  # Add the room to the list
+            db.session.add_all(rooms)  # Add all rooms in one go to the database
+        else:  # If it's a single room
+            new_room = Room(
+                name=data["name"],
+                level=data["level"],
+                type=data["type"],
+                connections_list=data["connections"]  # Use connections_list setter
+            )
+            db.session.add(new_room)  # Add the single room to the database
 
+        db.session.commit()  # Commit the transaction
+        return jsonify({"message": "Rooms added successfully"}), 201  # Return a success message
+
+    except Exception as e:
+        db.session.rollback()  # Rollback the transaction if there's an error
+        return jsonify({"error": str(e)}), 400  # Return the error message
+
+@app.route('/rooms', methods=['GET'])
+def get_rooms():
+    rooms = Room.query.all()  # Fetch all rooms from the database
+    # Return the room details in JSON format
+    return jsonify([{
+        "id": room.id,
+        "name": room.name,
+        "level": room.level,
+        "type": room.type,
+        "connections": room.connections
+    } for room in rooms]), 200
+
+@app.route('/rooms/<int:room_id>', methods=['PUT'])
+def update_room(room_id):
+    try:
+        # Get the data to update the room
+        data = request.get_json()
+
+        # Find the room to update
+        room = Room.query.get(room_id)
+
+        if not room:
+            return jsonify({"error": "Room not found"}), 404
+
+        # Update room attributes
+        room.name = data.get("name", room.name)
+        room.level = data.get("level", room.level)
+        room.type = data.get("type", room.type)
+        room.connections_list = data.get("connections", room.connections_list)
+
+        # Commit the changes
+        db.session.commit()
+        return jsonify({"message": "Room updated successfully", "room": room.name}), 200
+
+    except Exception as e:
+        db.session.rollback()  # Rollback the transaction if there's an error
+        return jsonify({"error": str(e)}), 400  # Return the error message
+
+@app.route('/rooms/<int:room_id>', methods=['DELETE'])
+def delete_room(room_id):
+    try:
+        # Find the room to delete
+        room = Room.query.get(room_id)
+
+        if not room:
+            return jsonify({"error": "Room not found"}), 404
+
+        # Delete the room
+        db.session.delete(room)
+        db.session.commit()
+        return jsonify({"message": "Room deleted successfully"}), 200
+
+    except Exception as e:
+        db.session.rollback()  # Rollback the transaction if there's an error
+        return jsonify({"error": str(e)}), 400  # Return the error message
 
 
     
