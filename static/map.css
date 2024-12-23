@@ -1,0 +1,337 @@
+/* Core variables */
+:root {
+    --primary-beige: #f5e6d3;
+    --dark-beige: #d2b48c;
+    --accent-brown: #8b7355;
+    --deep-brown: #6b4423;
+    --cream: #faf0e6;
+    --gold: #b8860b;
+    --paper: #f4ecd8;
+    --shadow: rgba(107, 68, 35, 0.2);
+}
+
+/* Global reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    color: var(--deep-brown);
+}
+
+/* Background setup */
+.background-container {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+}
+
+.background-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(244, 236, 216, 0.85);
+}
+
+/* Main container */
+.museum-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header styles */
+.museum-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.museum-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    color: var(--deep-brown);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    color: var(--accent-brown);
+    font-style: italic;
+}
+
+/* Map section */
+.map-section {
+    background: var(--paper);
+    border: 3px solid var(--dark-beige);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px var(--shadow);
+    position: relative;
+}
+
+/* Floor controls */
+.floor-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.floor-btn {
+    padding: 1rem 2rem;
+    font-family: inherit;
+    font-size: 1.1rem;
+    background: var(--cream);
+    border: 2px solid var(--dark-beige);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.floor-btn.active {
+    background: var(--deep-brown);
+    color: var(--cream);
+    border-color: var(--gold);
+}
+
+.floor-icon {
+    font-size: 1.2em;
+}
+
+/* Map container */
+.map-wrapper {
+    position: relative;
+    padding-bottom: 75%;
+}
+
+#map-container {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 2rem;
+    background: rgba(250, 240, 230, 0.9);
+    border: 2px solid var(--dark-beige);
+    border-radius: 12px;
+}
+
+/* Room styles */
+.room {
+    position: relative;
+    padding: 1.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 120px;
+    border: 2px solid var(--dark-beige);  /* Make border always visible */
+    background-color: rgba(250, 240, 230, 0.9); /* Subtle background for visibility */
+}
+
+.room.active {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px var(--shadow);
+    border-color: var(--gold);
+    z-index: 2;
+}
+
+.room.connected {
+    border-color: var(--gold);
+    background-color: rgba(184, 134, 11, 0.1);
+}
+
+/* Additional enhancements for room borders */
+.room-id-badge {
+    position: absolute;
+    top: -0.5rem;
+    left: -0.5rem;
+    background: var(--deep-brown);
+    color: var(--cream);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 2px 2px 4px var(--shadow);
+}
+
+/* Modal header styles */
+.room-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+
+.modal-content .room-id {
+    background: var(--deep-brown);
+    color: var(--cream);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.connections-list li {
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.connections-list li:hover {
+    background-color: rgba(184, 134, 11, 0.1);
+}
+
+/* Additional styles for the "See Room Connections" button */
+/* Apply consistent font family to all buttons */
+button, .see-connections-btn, .close-button {
+    font-family: 'Cormorant Garamond', serif;
+}
+
+/* Additional styles for the "See Room Connections" button */
+.see-connections-btn {
+    padding: 0.5rem 1.5rem;
+    background-color: var(--cream);
+    border: 2px solid var(--dark-beige);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--deep-brown);
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.see-connections-btn:hover {
+    background-color: var(--deep-brown);
+    color: var(--cream);
+    border-color: var(--gold);
+}
+
+/* Custom alert styling */
+.custom-alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
+    background-color: var(--cream);
+    border-radius: 10px;
+    border: 2px solid var(--dark-beige);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 90%;
+    z-index: 999;
+    font-family: 'Cormorant Garamond', serif;  /* Ensure same font is used */
+    color: var(--deep-brown);
+    text-align: center;
+    font-size: 1.2rem;  /* Adjusted font size for better readability */
+}
+
+/* Alert content */
+.custom-alert .alert-content {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5; /* Improve readability */
+}
+
+/* Close button in alert */
+.custom-alert .close-button {
+    padding: 0.5rem 1rem;
+    background-color: var(--deep-brown);
+    color: var(--cream);
+    border: 2px solid var(--dark-beige);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.custom-alert .close-button:hover {
+    background-color: var(--gold);
+    color: var(--deep-brown);
+}
+
+/* Loading spinner inside alert */
+.loading-spinner {
+    margin: 1rem auto;
+    border: 5px solid var(--cream);
+    border-top: 5px solid var(--deep-brown);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+
+/* Footer */
+footer {
+    background: linear-gradient(to top, rgba(139, 115, 85, 0.95), rgba(139, 115, 85, 0.85));
+    color: var(--primary-beige);
+    padding: 2rem;
+    text-align: center;
+    margin-top: 4rem;
+}
+
+footer a {
+    color: var(--cream);
+    text-decoration: none;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+}
+
+footer a:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+}
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .museum-container {
+        padding: 1rem;
+    }
+
+    .museum-header h1 {
+        font-size: 2.5rem;
+    }
+
+    #map-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .floor-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+}

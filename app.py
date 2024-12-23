@@ -20,6 +20,10 @@ db.init_app(app)
 def home():
     return render_template('index.html')
 
+@app.route('/map')
+def map_page():
+    return render_template('map.html')
+
 @app.route('/categories-page')
 def categories_page():
     try:
@@ -359,6 +363,39 @@ def get_rooms():
         "type": room.type,
         "connections": room.connections
     } for room in rooms]), 200
+
+@app.route('/rooms/<int:room_id>/connections', methods=['GET'])
+def get_room_connections(room_id):
+    try:
+        room = Room.query.get(room_id)
+        if room:
+            connections = room.connections_list  # Assuming `connections_list` gives a list of connected room names
+            return jsonify(connections), 200
+        else:
+            return jsonify({"error": "Room not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/rooms/<int:room_id>', methods=['GET'])
+def get_room_by_id(room_id):
+    try:
+        room = Room.query.get(room_id)  # Fetch the room from the database by ID
+
+        if room:
+            return jsonify({
+                "id": room.id,
+                "name": room.name,
+                "level": room.level,
+                "type": room.type,
+                "connections": room.connections
+            }), 200
+        else:
+            return jsonify({"error": "Room not found"}), 404  # Room not found
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  # Server error
+
 
 @app.route('/rooms/<int:room_id>', methods=['PUT'])
 def update_room(room_id):

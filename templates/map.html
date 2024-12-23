@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bardo Museum Interactive Map</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/map.css">
+</head>
+<body>
+    <div class="background-container">
+        <div class="overlay"></div>
+        <img src="/static/13.jpg" alt="Background">
+    </div>
+
+    <main class="museum-container">
+        <header class="museum-header">
+            <h1>Bardo Museum</h1>
+            <p class="subtitle">Interactive Floor Guide</p>
+        </header>
+
+        <section class="map-section">
+            <div class="floor-controls">
+                <button class="floor-btn active" data-level="0">
+                    <span class="floor-icon">⌂</span>
+                    Ground Floor
+                </button>
+                <button class="floor-btn" data-level="1">
+                    <span class="floor-icon">↑</span>
+                    First Floor
+                </button>
+            </div>
+
+            <div class="map-wrapper">
+                <div id="map-container"></div>
+                <div id="connections-layer"></div>
+                <div class="compass">
+                    <div class="compass-north">N</div>
+                    <div class="compass-east">E</div>
+                    <div class="compass-south">S</div>
+                    <div class="compass-west">W</div>
+                </div>
+            </div>
+
+            <div class="room-modal" id="room-modal">
+                <div class="modal-content">
+                    <button class="close-modal">×</button>
+                    <div class="room-info">
+                        <div class="room-header">
+                            <span class="room-id"></span>
+                            <h2 class="room-name"></h2>
+                        </div>
+                        <div class="room-details">
+                            <p class="room-type"></p>
+                            <div class="room-artifacts"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <a href="/">Back to Home</a>
+    </footer>
+
+    <script>
+        function showCustomAlert(message, isError = false, isLoading = false) {
+    const existingAlert = document.querySelector('.custom-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+
+    const alert = document.createElement('div');
+    alert.className = `custom-alert ${isError ? 'error' : ''} ${isLoading ? 'loading' : ''}`;
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'alert-content';
+    
+    if (isLoading) {
+        contentDiv.innerHTML = `
+            <div class="loading-spinner"></div>
+            <p>Loading additional information...</p>
+        `;
+    } else {
+        contentDiv.innerHTML = message;
+    }
+
+    const closeButton = document.createElement('button');
+    closeButton.className = 'close-button';
+    closeButton.innerHTML = '🤎 <span style="font-size: 10px; vertical-align: super;">Close</span>';
+    closeButton.onclick = () => {
+        alert.style.animation = 'fadeOut 0.5s ease-in-out';
+        setTimeout(() => alert.remove(), 500);
+    };
+
+    alert.appendChild(contentDiv);
+    alert.appendChild(closeButton);
+    document.body.appendChild(alert);
+
+    return alert;
+}
+
+        document.addEventListener('DOMContentLoaded', function() {
+    const mapContainer = document.getElementById('map-container');
+    const connectionsLayer = document.getElementById('connections-layer');
+    const modal = document.getElementById('room-modal');
+    const floorBtns = document.querySelectorAll('.floor-btn');
+    let currentLevel = 0;
+    let roomsData = [];
+
+    // Fetch all rooms when the page loads
+    async function fetchRooms() {
+        try {
+            const response = await fetch('/rooms');
+            if (!response.ok) throw new Error('Failed to fetch rooms');
+            roomsData = await response.json();
+            console.log("Rooms Data:", roomsData);  // Log the data for debugging
+            renderRooms(currentLevel);
+        } catch (error) {
+            console.error('Error:', error);
+            mapContainer.innerHTML = '<p class="error-message">Failed to load museum data</p>';
+        }
+    }
+
+    // Render the rooms on the map
+    function renderRooms(level) {
+        mapContainer.innerHTML = '';  // Clear the map before re-rendering rooms
+        connectionsLayer.innerHTML = '';  // Clear connections if any
+        const filteredRooms = roomsData.filter(room => room.level === level);
+
+        // If no rooms for this level, show a message
+        if (filteredRooms.length === 0) {
+            mapContainer.innerHTML = '<p>No rooms found for this floor.</p>';
+            return;
+        }
+
+        filteredRooms.forEach(room => {
+            const roomElement = createRoomElement(room);
+            mapContainer.appendChild(roomElement);
+        });
+    }
+
+    // Create an individual room element
+    function createRoomElement(room) {
+        const roomDiv = document.createElement('div');
+        roomDiv.className = `room room-${room.type}`;
+        roomDiv.dataset.id = room.id;
+        roomDiv.dataset.type = room.type;
+
+        const idBadge = document.createElement('span');
+        idBadge.className = 'room-id-badge';
+        idBadge.textContent = room.id;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'room-name';
+        nameSpan.textContent = room.name;
+
+        const typeIcon = document.createElement('span');
+        typeIcon.className = 'room-icon';
+        typeIcon.textContent = getRoomIcon(room.type);
+
+        const seeConnectionsBtn = document.createElement('button');
+        seeConnectionsBtn.className = 'see-connections-btn';
+        seeConnectionsBtn.textContent = 'See Room Connections';
+        seeConnectionsBtn.addEventListener('click', (event) => {
+            event.stopPropagation();  // Prevent click event on room from triggering modal
+            showRoomConnections(room.id);
+        });
+
+        roomDiv.appendChild(idBadge);
+        roomDiv.appendChild(typeIcon);
+        roomDiv.appendChild(nameSpan);
+        roomDiv.appendChild(seeConnectionsBtn);
+
+        // Event listener for room click
+        roomDiv.addEventListener('click', () => {
+            activeRoomId = room.id;
+            showRoomModal(room.id);
+        });
+
+        return roomDiv;
+    }
+
+    // Show room connections
+    async function showRoomConnections(roomId) {
+        const connections = await fetchRoomConnections(roomId);
+        if (connections.length > 0) {
+            showCustomAlert(`Room Connections: ${connections.join(', ')}`);
+        } else {
+            showCustomAlert('No connections available for this room.');
+        }
+    }
+
+    // Fetch room connections
+    async function fetchRoomConnections(roomId) {
+        try {
+            const response = await fetch(`/rooms/${roomId}/connections`);
+            if (!response.ok) throw new Error('Failed to fetch room connections');
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return [];
+        }
+    }
+
+    // Get the icon for the room based on its type
+    function getRoomIcon(type) {
+        const icons = {
+            entrance: '🏛',
+            exhibit: '🗿',
+            pathway: '🟫',
+            service: '📜'
+        };
+        return icons[type] || '•';
+    }
+
+    // Show room details in a modal pop-up
+    async function showRoomModal(roomId) {
+        const room = await fetchRoomDetails(roomId);
+        if (!room) return;
+
+        modal.querySelector('.room-id').textContent = `Room ${room.id}`;
+        modal.querySelector('.room-name').textContent = room.name;
+        modal.querySelector('.room-type').textContent = `${room.type.charAt(0).toUpperCase() + room.type.slice(1)} Area`;
+
+        modal.classList.add('active');
+    }
+
+    // Close the modal
+    document.querySelector('.close-modal').addEventListener('click', () => {
+        modal.classList.remove('active');
+    });
+
+    // Handle floor button clicks
+    floorBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            floorBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentLevel = parseInt(btn.dataset.level);
+            renderRooms(currentLevel);
+        });
+    });
+
+    // Initialize room data
+    fetchRooms();
+});
+
+    </script>
+</body>
+</html>
