@@ -1,17 +1,21 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from models import db, Category, Feedback, QuizQuestion, Room
+from models import db, Category, Feedback, QuizQuestion, Room, User
 from datetime import datetime
 from random import sample
 from flask_cors import CORS
 import requests
+from werkzeug.security import generate_password_hash, check_password_hash
 
 API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'  
 CX = '642ef41d594bc4032'
 
 app = Flask(__name__)
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bardo_museum.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'Ranim*9*Nasri'
 CORS(app) 
 
 db.init_app(app)
@@ -31,6 +35,10 @@ def categories_page():
         return render_template('categories.html', categories=categories)
     except SQLAlchemyError as e:
         return f"An error occurred: {str(e)}"
+    
+@app.route('/')
+def authentication():
+    return render_template('auth.html')
     
 @app.route('/categories', methods=['POST'])
 def add_category():
@@ -441,6 +449,81 @@ def delete_room(room_id):
         db.session.rollback()  # Rollback the transaction if there's an error
         return jsonify({"error": str(e)}), 400  # Return the error message
 
+@app.route('/user', methods=['POST'])
+def auth():
+    data = request.json  # Use JSON data instead of form data
+
+    if 'name' in data:  # Sign Up
+        # Check if user already exists
+        if User.query.filter_by(email=data['email']).first():
+            return jsonify({'error': 'Email already registered'}), 400
+
+        # Create new user
+        hashed_password = generate_password_hash(data['password'])  # No need to specify method
+        new_user = User(
+            email=data['email'],
+            password=hashed_password,
+            full_name=data['name']
+        )
+
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            session['user_id'] = new_user.id
+            return jsonify({'message': 'Successfully registered'}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
+
+    else:  # Sign In
+        user = User.query.filter_by(email=data['email']).first()
+        
+        if not user or not check_password_hash(user.password, data['password']):
+            return jsonify({'error': 'Invalid email or password'}), 401
+
+        session['user_id'] = user.id
+        return jsonify({'message': 'Successfully logged in'}), 200
+
+
+# Optional: Get current user info
+@app.route('/user', methods=['GET'])
+def get_user():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    user = User.query.get(session['user_id'])
+    return jsonify({
+        'email': user.email,
+        'full_name': user.full_name
+    }), 200
+
+@app.route('/user/<int:user_id>', methods=['DELETE'])
+def delete_user_by_id(user_id):
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    # Ensure the logged-in user is trying to delete their own account
+    if session['user_id'] != user_id:
+        return jsonify({'error': 'Unauthorized to delete this account'}), 403
+
+    # Fetch the user to delete based on the user_id in the URL
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    try:
+        # Delete the user from the database
+        db.session.delete(user)
+        db.session.commit()
+
+        # Log the user out by removing the user_id from the session
+        session.pop('user_id', None)
+
+        return jsonify({'message': 'User account deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete account', 'details': str(e)}), 500
 
     
 if __name__ == "__main__":

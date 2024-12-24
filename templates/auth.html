@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bardo Museum - Sign In / Sign Up</title>
+    <link rel="stylesheet" href="/static/auth.css">
+</head>
+<body>
+
+    <main class="auth-container">
+        <h2 id="form-title">Sign In</h2>
+        <form id="auth-form">
+            <div class="form-field">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <!-- Sign-up specific fields -->
+            <div class="form-field" id="sign-up-field">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" id="submit-btn">Sign In</button>
+                <p id="toggle-btn" onclick="toggleForm()">Don't have an account? Sign Up</p>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        let isSignUp = false;
+
+        // Toggle between sign-in and sign-up form
+        function toggleForm() {
+            const formTitle = document.getElementById("form-title");
+            const submitBtn = document.getElementById("submit-btn");
+            const toggleBtn = document.getElementById("toggle-btn");
+            const signUpField = document.getElementById("sign-up-field");
+
+            isSignUp = !isSignUp;
+
+            if (isSignUp) {
+                formTitle.innerHTML = "Sign Up";
+                submitBtn.innerHTML = "Sign Up";
+                toggleBtn.innerHTML = "Already have an account? Sign In";
+                signUpField.style.display = "block";  // Show sign-up specific field
+            } else {
+                formTitle.innerHTML = "Sign In";
+                submitBtn.innerHTML = "Sign In";
+                toggleBtn.innerHTML = "Don't have an account? Sign Up";
+                signUpField.style.display = "none";  // Hide sign-up specific field
+            }
+        }
+
+        // Handle form submission via AJAX
+        document.getElementById('auth-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            // Set correct URL based on Sign In / Sign Up
+            const url = '/auth';
+            
+            // Send the data as JSON
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    if (data.message === 'Successfully logged in' || data.message === 'Successfully registered') {
+                        window.location.href = '/';  // Redirect to home page after successful login/signup
+                    }
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+
+</body>
+</html>
