@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Mosaic Creator - Bardo Museum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/create.css">
+
+</head>
+<body>
+    <div class="background-container">
+        <div class="overlay"></div>
+        <img src="/static/13.jpg" alt="Background">
+    </div>
+    <div class="container">
+        <div class="title-section">
+            <h1>Virtual Mosaic Creator</h1>
+            <p class="description">Create your own Roman-inspired mosaic artwork inspired by the magnificent collections at the Bardo Museum. Use authentic colors and patterns to craft your masterpiece.</p>
+        </div>
+
+        <div class="mosaic-creator">
+            <div class="canvas-container">
+                <canvas id="mosaic-canvas"></canvas>
+            </div>
+
+            <div class="tools-panel">
+                <div class="tool-section">
+                    <h3>Colors</h3>
+                    <div class="color-palette">
+                        <div class="color-option selected" style="background-color: var(--deep-brown);" data-color="#6b4423"></div>
+                        <div class="color-option" style="background-color: var(--gold);" data-color="#b8860b"></div>
+                        <div class="color-option" style="background-color: var(--light-gold);" data-color="#daa520"></div>
+                        <div class="color-option" style="background-color: var(--terracotta);" data-color="#cd853f"></div>
+                        <div class="color-option" style="background-color: var(--burnt-orange);" data-color="#d2691e"></div>
+                        <div class="color-option" style="background-color: var(--accent-brown);" data-color="#8b7355"></div>
+                        <div class="color-option" style="background-color: var(--dark-beige);" data-color="#d2b48c"></div>
+                        <div class="color-option" style="background-color: var(--desert-sand);" data-color="#deb887"></div>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Tile Size</h3>
+                    <input type="range" min="10" max="50" value="20" class="size-slider" id="size-slider">
+                    <div class="size-value">20px</div>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Tools</h3>
+                    <button class="button tool-button selected" data-tool="place">Place Tile</button>
+                    <button class="button tool-button" data-tool="fill">Fill Area</button>
+                    <button class="button tool-button" data-tool="erase">Erase</button>
+                </div>
+
+                <div class="tool-section">
+                    <h3>Actions</h3>
+                    <button class="button" id="save-btn">Save Creation</button>
+                    <button class="button" id="share-btn">Share</button>
+                    <button class="button" id="clear-btn">Clear Canvas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <a href="/">Back to Home</a>
+    </footer>
+    <script>
+        class MosaicCreator {
+            constructor() {
+                this.canvas = document.getElementById('mosaic-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.currentColor = '#6b4423'; // Updated to match the first color
+                this.currentSize = 20;
+                this.currentTool = 'place';
+                this.isDrawing = false;
+                this.tiles = [];
+                
+                this.initializeCanvas();
+                this.setupEventListeners();
+                this.createTilePreview();
+            }
+    
+            initializeCanvas() {
+                const resizeCanvas = () => {
+                    const container = this.canvas.parentElement;
+                    this.canvas.width = container.offsetWidth;
+                    this.canvas.height = container.offsetHeight;
+                    this.redrawTiles();
+                };
+                
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+            }
+    
+            createTilePreview() {
+                const preview = document.createElement('div');
+                preview.id = 'tile-preview';
+                this.canvas.parentElement.appendChild(preview);
+                this.preview = preview;
+            }
+    
+            setupEventListeners() {
+                // Color selection
+                document.querySelectorAll('.color-option').forEach(color => {
+                    color.addEventListener('click', (e) => {
+                        document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.currentColor = e.target.dataset.color;
+                        if (this.preview) {
+                            this.preview.style.backgroundColor = this.currentColor;
+                        }
+                    });
+                });
+    
+                // Tool selection
+                document.querySelectorAll('.tool-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        document.querySelectorAll('.tool-button').forEach(b => b.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.currentTool = e.target.dataset.tool;
+                        if (this.preview) {
+                            this.preview.style.backgroundColor = this.currentTool === 'erase' ? 'rgba(255,0,0,0.2)' : this.currentColor;
+                        }
+                    });
+                });
+    
+                // Size slider
+                const sizeSlider = document.getElementById('size-slider');
+                const sizeValue = document.querySelector('.size-value');
+                sizeSlider.addEventListener('input', (e) => {
+                    this.currentSize = parseInt(e.target.value);
+                    sizeValue.textContent = `${this.currentSize}px`;
+                    if (this.preview) {
+                        this.preview.style.width = `${this.currentSize}px`;
+                        this.preview.style.height = `${this.currentSize}px`;
+                    }
+                });
+    
+                // Canvas interactions
+                this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+                this.canvas.addEventListener('mousemove', (e) => {
+                    this.draw(e);
+                    this.updatePreview(e);
+                });
+                this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+                this.canvas.addEventListener('mouseleave', () => this.stopDrawing());
+    
+                // Action buttons
+                document.getElementById('clear-btn').addEventListener('click', () => this.clearCanvas());
+                document.getElementById('save-btn').addEventListener('click', () => this.saveCreation());
+                document.getElementById('share-btn').addEventListener('click', () => this.shareCreation());
+            }
+    
+            updatePreview(e) {
+                if (!this.preview) return;
+    
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+    
+                this.preview.style.width = `${this.currentSize}px`;
+                this.preview.style.height = `${this.currentSize}px`;
+                this.preview.style.left = `${x - this.currentSize/2}px`;
+                this.preview.style.top = `${y - this.currentSize/2}px`;
+                this.preview.style.backgroundColor = this.currentTool === 'erase' ? 'rgba(255,0,0,0.2)' : this.currentColor;
+            }
+    
+            startDrawing(e) {
+                this.isDrawing = true;
+                this.draw(e);
+            }
+    
+            draw(e) {
+                if (!this.isDrawing) return;
+    
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+    
+                if (this.currentTool === 'place' || this.currentTool === 'erase') {
+                    const alignedX = Math.floor(x / this.currentSize) * this.currentSize;
+                    const alignedY = Math.floor(y / this.currentSize) * this.currentSize;
+    
+                    const tile = {
+                        x: alignedX,
+                        y: alignedY,
+                        size: this.currentSize,
+                        color: this.currentTool === 'erase' ? null : this.currentColor
+                    };
+    
+                    // Remove any existing tiles at the same position
+                    this.tiles = this.tiles.filter(t => 
+                        t.x !== tile.x || t.y !== tile.y
+                    );
+    
+                    if (this.currentTool === 'place') {
+                        this.tiles.push(tile);
+                    }
+    
+                    this.redrawTiles();
+                }
+            }
+    
+            stopDrawing() {
+                this.isDrawing = false;
+            }
+    
+            redrawTiles() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw grid
+                this.ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                for (let x = 0; x <= this.canvas.width; x += this.currentSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                for (let y = 0; y <= this.canvas.height; y += this.currentSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+                
+                // Draw tiles
+                this.tiles.forEach(tile => {
+                    if (tile.color) {
+                        this.ctx.fillStyle = tile.color;
+                        this.ctx.fillRect(tile.x, tile.y, tile.size, tile.size);
+                        this.ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+                        this.ctx.strokeRect(tile.x, tile.y, tile.size, tile.size);
+                    }
+                });
+            }
+    
+            clearCanvas() {
+                if (confirm('Are you sure you want to clear your mosaic?')) {
+                    this.tiles = [];
+                    this.redrawTiles();
+                }
+            }
+    
+            saveCreation() {
+                const dataUrl = this.canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = 'my-mosaic.png';
+                link.href = dataUrl;
+                link.click();
+            }
+    
+            shareCreation() {
+                alert('Sharing feature coming soon! For now, you can save your mosaic and share it manually.');
+            }
+        }
+    
+        // Initialize the mosaic creator when the page loads
+        window.addEventListener('load', () => {
+            new MosaicCreator();
+        });
+    </script>
+</body>
+</html>

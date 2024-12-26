@@ -10,7 +10,7 @@
 
     <main class="auth-container">
         <h2 id="form-title">Sign In</h2>
-        <form id="auth-form">
+        <form id="auth-form" method="POST">
             <div class="form-field">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
@@ -35,64 +35,67 @@
     </main>
 
     <script>
-        let isSignUp = false;
+        let isSignUp = false;  // Keeps track of whether the form is for Sign Up or Sign In
 
-        // Toggle between sign-in and sign-up form
+        // Toggle between sign-in and sign-up forms
         function toggleForm() {
             const formTitle = document.getElementById("form-title");
             const submitBtn = document.getElementById("submit-btn");
             const toggleBtn = document.getElementById("toggle-btn");
             const signUpField = document.getElementById("sign-up-field");
 
-            isSignUp = !isSignUp;
+            isSignUp = !isSignUp;  // Toggle between true/false
 
+            // Adjust the form depending on whether it's sign-up or sign-in
             if (isSignUp) {
                 formTitle.innerHTML = "Sign Up";
                 submitBtn.innerHTML = "Sign Up";
                 toggleBtn.innerHTML = "Already have an account? Sign In";
-                signUpField.style.display = "block";  // Show sign-up specific field
+                signUpField.style.display = "block";  // Show sign-up specific fields
             } else {
                 formTitle.innerHTML = "Sign In";
                 submitBtn.innerHTML = "Sign In";
                 toggleBtn.innerHTML = "Don't have an account? Sign Up";
-                signUpField.style.display = "none";  // Hide sign-up specific field
+                signUpField.style.display = "none";  // Hide sign-up specific fields
             }
         }
 
-        // Handle form submission via AJAX
+        // Handle form submission
         document.getElementById('auth-form').addEventListener('submit', function(event) {
-            event.preventDefault();
+            event.preventDefault();  // Prevent the default form submission behavior
 
             const formData = new FormData(event.target);
             const data = {};
             formData.forEach((value, key) => {
-                data[key] = value;
+                if (value.trim()) data[key] = value;  // Convert form data into a JSON object
             });
 
-            // Set correct URL based on Sign In / Sign Up
-            const url = '/auth';
-            
-            // Send the data as JSON
-            fetch(url, {
+            // Determine the correct endpoint based on the form mode (sign-in or sign-up)
+            const endpoint = isSignUp ? '/auth/signup' : '/auth/signin';
+
+            // Send the data to the appropriate endpoint
+            fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(data),  // Send form data as JSON to the Flask endpoint
+                credentials: 'same-origin'  // Ensure session is sent
             })
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
-                    alert(data.message);
-                    if (data.message === 'Successfully logged in' || data.message === 'Successfully registered') {
-                        window.location.href = '/';  // Redirect to home page after successful login/signup
-                    }
+                    // If successful, redirect to home page
+                    window.location.href = '/';
+
                 } else if (data.error) {
+                    // If there's an error, display the error message
                     alert(data.error);
                 }
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error:', error);
+                alert('An error occurred. Please try again.');
             });
         });
     </script>
