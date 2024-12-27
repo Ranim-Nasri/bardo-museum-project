@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/static/auth.css">
 </head>
 <body>
-
     <main class="auth-container">
         <h2 id="form-title">Sign In</h2>
         <form id="auth-form" method="POST">
@@ -22,9 +21,9 @@
             </div>
 
             <!-- Sign-up specific fields -->
-            <div class="form-field" id="sign-up-field">
+            <div class="form-field" id="sign-up-field" style="display: none;">
                 <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" required>
+                <input type="text" id="name" name="name">
             </div>
 
             <div class="form-actions">
@@ -35,70 +34,95 @@
     </main>
 
     <script>
-        let isSignUp = false;  // Keeps track of whether the form is for Sign Up or Sign In
+        function showVintageAlert(message) {
+    // Remove any existing alerts
+    const existingAlert = document.querySelector('.vintage-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
 
-        // Toggle between sign-in and sign-up forms
+    // Create new alert
+    const alert = document.createElement('div');
+    alert.className = 'vintage-alert';
+    alert.textContent = message;
+
+    // Add to document
+    document.body.appendChild(alert);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        alert.style.animation = 'slideDown 0.5s ease-out reverse forwards';
+        setTimeout(() => {
+            alert.remove();
+        }, 500);
+    }, 3000);
+}
+        let isSignUp = false;
+
         function toggleForm() {
             const formTitle = document.getElementById("form-title");
             const submitBtn = document.getElementById("submit-btn");
             const toggleBtn = document.getElementById("toggle-btn");
             const signUpField = document.getElementById("sign-up-field");
+            const nameInput = document.getElementById("name");
 
-            isSignUp = !isSignUp;  // Toggle between true/false
+            isSignUp = !isSignUp;
 
-            // Adjust the form depending on whether it's sign-up or sign-in
             if (isSignUp) {
-                formTitle.innerHTML = "Sign Up";
-                submitBtn.innerHTML = "Sign Up";
-                toggleBtn.innerHTML = "Already have an account? Sign In";
-                signUpField.style.display = "block";  // Show sign-up specific fields
+                formTitle.textContent = "Sign Up";
+                submitBtn.textContent = "Sign Up";
+                toggleBtn.textContent = "Already have an account? Sign In";
+                signUpField.style.display = "block";
+                nameInput.required = true;
             } else {
-                formTitle.innerHTML = "Sign In";
-                submitBtn.innerHTML = "Sign In";
-                toggleBtn.innerHTML = "Don't have an account? Sign Up";
-                signUpField.style.display = "none";  // Hide sign-up specific fields
+                formTitle.textContent = "Sign In";
+                submitBtn.textContent = "Sign In";
+                toggleBtn.textContent = "Don't have an account? Sign Up";
+                signUpField.style.display = "none";
+                nameInput.required = false;
             }
         }
 
-        // Handle form submission
         document.getElementById('auth-form').addEventListener('submit', function(event) {
-            event.preventDefault();  // Prevent the default form submission behavior
-
+            event.preventDefault();
+            
             const formData = new FormData(event.target);
             const data = {};
+            
             formData.forEach((value, key) => {
-                if (value.trim()) data[key] = value;  // Convert form data into a JSON object
+                if (value.trim() || key === 'password') {  // Allow empty password
+                    data[key] = value;
+                }
             });
 
-            // Determine the correct endpoint based on the form mode (sign-in or sign-up)
+            // Remove name field if not signing up
+            if (!isSignUp) {
+                delete data.name;
+            }
+
             const endpoint = isSignUp ? '/auth/signup' : '/auth/signin';
 
-            // Send the data to the appropriate endpoint
             fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(data),  // Send form data as JSON to the Flask endpoint
-                credentials: 'same-origin'  // Ensure session is sent
+                body: JSON.stringify(data),
+                credentials: 'same-origin'
             })
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
-                    // If successful, redirect to home page
-                    window.location.href = '/';
-
+                    window.location.href = '/home';
                 } else if (data.error) {
-                    // If there's an error, display the error message
-                    alert(data.error);
+                    showVintageAlert(data.error);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                showVintageAlert('An error occurred. Please try again.');
             });
         });
     </script>
-
 </body>
 </html>

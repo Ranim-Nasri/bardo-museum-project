@@ -1,4 +1,6 @@
-/* Authentication Page Specific Styles */
+/** Vintage Authentication Page Styles **/
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Playfair+Display:ital@0;1&display=swap');
+
 :root {
     --primary-beige: #f5e6d3;
     --dark-beige: #d2b48c;
@@ -7,129 +9,229 @@
     --cream: #faf0e6;
     --text-dark: #463e3f;
     --gold: #b8860b;
-    --serif-font: 'Cormorant Garamond', serif;
+    --serif-font: 'Playfair Display', serif;
+    --body-font: 'Cormorant Garamond', serif;
 }
 
 body {
-    font-family: var(--serif-font);
+    font-family: var(--body-font);
     background-color: var(--cream);
     color: var(--text-dark);
     line-height: 1.8;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
-}
-body {
     background-image: url('14.jpeg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    position: relative;
 }
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(245, 230, 211, 0.2);
+    backdrop-filter: blur(3px);
+}
+
 .auth-container {
-    background-color: var(--primary-beige);
-    padding: 3rem;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(107, 68, 35, 0.15);
+    background-color: rgba(245, 230, 211, 0.95);
+    padding: 3.5rem;
+    border-radius: 2px;
+    box-shadow: 0 8px 32px rgba(107, 68, 35, 0.15);
     width: 100%;
     max-width: 400px;
     border: 1px solid var(--dark-beige);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, var(--gold), var(--deep-brown), var(--gold));
 }
 
 .auth-container h2 {
+    font-family: var(--serif-font);
     color: var(--deep-brown);
     text-align: center;
-    font-size: 2.2rem;
-    margin-bottom: 2rem;
-    letter-spacing: 2px;
+    font-size: 2.4rem;
+    margin-bottom: 2.5rem;
+    letter-spacing: 3px;
     font-weight: 400;
     position: relative;
 }
 
 .auth-container h2::after {
-    content: '';
+    content: '❦';
     display: block;
-    width: 40px;
-    height: 2px;
-    background-color: var(--gold);
+    color: var(--gold);
+    font-size: 1.5rem;
     margin: 0.8rem auto;
 }
 
 .form-field {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.8rem;
+    position: relative;
 }
 
 .form-field label {
     display: block;
     color: var(--deep-brown);
     margin-bottom: 0.5rem;
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    font-family: var(--serif-font);
 }
 
 .form-field input {
     width: 100%;
     padding: 1rem;
     border: 1px solid var(--dark-beige);
-    border-radius: 4px;
-    background-color: var(--cream);
+    border-radius: 2px;
+    background-color: rgba(250, 240, 230, 0.8);
     color: var(--text-dark);
-    font-family: var(--serif-font);
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
+    font-family: var(--body-font);
+    font-size: 1.2rem;
+    transition: all 0.4s ease;
 }
 
 .form-field input:focus {
     outline: none;
     border-color: var(--gold);
-    box-shadow: 0 0 8px rgba(184, 134, 11, 0.2);
+    box-shadow: 0 0 12px rgba(184, 134, 11, 0.15);
+    background-color: var(--cream);
 }
 
 #sign-up-field {
     display: none;
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .form-actions {
     text-align: center;
-    margin-top: 2rem;
+    margin-top: 2.5rem;
 }
 
 #submit-btn {
     width: 100%;
-    padding: 1rem;
+    padding: 1.2rem;
     background-color: var(--deep-brown);
     color: var(--cream);
-    border: 1px solid var(--gold);
-    border-radius: 4px;
+    border: none;
+    border-radius: 2px;
     font-family: var(--serif-font);
-    font-size: 1.1rem;
-    letter-spacing: 2px;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-bottom: 1rem;
+    transition: all 0.4s ease;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+#submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+#submit-btn:hover::before {
+    left: 100%;
 }
 
 #submit-btn:hover {
     background-color: var(--gold);
-    border-color: var(--deep-brown);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(107, 68, 35, 0.15);
+    box-shadow: 0 4px 12px rgba(107, 68, 35, 0.2);
 }
 
 #toggle-btn {
     color: var(--deep-brown);
     cursor: pointer;
-    font-size: 0.9rem;
-    text-decoration: underline;
-    transition: color 0.3s ease;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
     margin: 0;
+    position: relative;
+    display: inline-block;
 }
 
-#toggle-btn:hover {
+#toggle-btn::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--gold);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s ease;
+}
+
+#toggle-btn:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* Custom Alert Styles */
+.vintage-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-beige);
+    border: 1px solid var(--gold);
+    padding: 1rem 2rem;
+    border-radius: 2px;
+    font-family: var(--serif-font);
+    color: var(--deep-brown);
+    box-shadow: 0 4px 12px rgba(107, 68, 35, 0.15);
+    z-index: 1000;
+    min-width: 300px;
+    text-align: center;
+    animation: slideDown 0.5s ease-out forwards;
+}
+
+.vintage-alert::before {
+    content: '※';
     color: var(--gold);
+    margin-right: 10px;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
 }
 
 @keyframes fadeIn {
@@ -143,18 +245,18 @@ body {
     }
 }
 
-/* Responsive Adjustments */
+/** Responsive Adjustments **/
 @media (max-width: 480px) {
     .auth-container {
-        padding: 2rem;
+        padding: 2.5rem;
         margin: 1rem;
     }
-
+    
     .auth-container h2 {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
-
+    
     .form-field input {
-        padding: 0.8rem;
+        padding: 0.9rem;
     }
 }

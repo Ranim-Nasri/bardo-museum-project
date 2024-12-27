@@ -4,9 +4,9 @@ from models import db, Category, Feedback, QuizQuestion, Room, User
 from datetime import datetime
 from random import sample
 from flask_cors import CORS
-import requests
+import requests, os
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_mail import Mail, Message
 
 API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'  
 CX = '642ef41d594bc4032'
@@ -18,6 +18,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bardo_museum.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'Ranim*9*Nasri'
 CORS(app) 
+
 
 db.init_app(app)
 
@@ -56,6 +57,8 @@ def categories_page():
 @app.route('/')
 def authentication():
     return render_template('auth.html')
+
+
     
 @app.route('/categories', methods=['POST'])
 def add_category():
@@ -472,7 +475,7 @@ def signup():
     try:
         if User.query.filter_by(email=data['email']).first():
             return jsonify({'error': 'Email already registered'}), 400
-
+        
         new_user = User(
             email=data['email'],
             password=generate_password_hash(data['password']),
@@ -480,9 +483,11 @@ def signup():
         )
         db.session.add(new_user)
         db.session.commit()
+        
         session['user_id'] = new_user.id
         session.permanent = False  # Session expires when browser closes
         return jsonify({'message': 'Successfully registered'}), 201
+    
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
@@ -490,18 +495,22 @@ def signup():
 @app.route('/auth/signin', methods=['POST'])
 def signin():
     data = request.json
-    print("Received data for signin:", data)  # Debugging
     try:
         user = User.query.filter_by(email=data['email']).first()
-        if user and check_password_hash(user.password, data['password']):
+        
+        if not user:
+            return jsonify({'error': 'Invalid email or password'}), 401
+            
+        if check_password_hash(user.password, data['password']):
             session['user_id'] = user.id
             session.permanent = False  # Session expires when browser closes
             return jsonify({'message': 'Successfully logged in'}), 200
+        
         return jsonify({'error': 'Invalid email or password'}), 401
+    
     except Exception as e:
         print("Error during signin:", e)  # Debugging
         return jsonify({'error': str(e)}), 500
-
 
 
 

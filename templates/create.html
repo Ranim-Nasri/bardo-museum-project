@@ -65,6 +65,29 @@
         <a href="/">Back to Home</a>
     </footer>
     <script>
+        function showVintageAlert(message) {
+    // Remove any existing alerts
+    const existingAlert = document.querySelector('.vintage-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+
+    // Create new alert
+    const alert = document.createElement('div');
+    alert.className = 'vintage-alert';
+    alert.textContent = message;
+
+    // Add to document
+    document.body.appendChild(alert);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        alert.style.animation = 'slideDown 0.5s ease-out reverse forwards';
+        setTimeout(() => {
+            alert.remove();
+        }, 500);
+    }, 3000);
+}
         class MosaicCreator {
             constructor() {
                 this.canvas = document.getElementById('mosaic-canvas');
@@ -250,7 +273,7 @@
             }
     
             shareCreation() {
-                alert('Sharing feature coming soon! For now, you can save your mosaic and share it manually.');
+                showVintageAlert('Sharing feature coming soon! For now, you can save your mosaic and share it manually.');
             }
         }
     
