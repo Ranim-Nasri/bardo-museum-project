@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Your Virtual Museum Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/rate.css">
+</head>
+<body>
+    <div class="rating-container">
+        <h2>Rate Your Virtual Museum Experience</h2>
+        
+        <!-- Exhibits Section -->
+        <div class="section-rating" id="exhibits-section">
+            <h3>Virtual Exhibits Categories</h3>
+            <div class="stars" data-section="exhibits">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <ul class="rating-questions">
+                <li>How clear were the exhibit descriptions?</li>
+                <li>Was the Google integration helpful?</li>
+                <li>What additional information would you like to see?</li>
+            </ul>
+            <textarea class="feedback-area" placeholder="Share your thoughts about the virtual exhibits..."></textarea>
+        </div>
+
+        <!-- Map Section -->
+        <div class="section-rating" id="map-section">
+            <h3>Interactive Museum Map</h3>
+            <div class="stars" data-section="map">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <ul class="rating-questions">
+                <li>How easy was it to navigate the map?</li>
+                <li>Was the layout clear and understandable?</li>
+                <li>What features would make the map more useful?</li>
+            </ul>
+            <textarea class="feedback-area" placeholder="Share your thoughts about the museum map..."></textarea>
+        </div>
+
+        <!-- 3D Tour Section -->
+        <div class="section-rating" id="tour-section">
+            <h3>3D Virtual Tour</h3>
+            <div class="stars" data-section="tour">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <ul class="rating-questions">
+                <li>How smooth was the 3D tour experience?</li>
+                <li>Was the QR code for mobile access easy to use?</li>
+                <li>What would improve the virtual tour?</li>
+            </ul>
+            <textarea class="feedback-area" placeholder="Share your thoughts about the virtual tour..."></textarea>
+        </div>
+
+        <!-- Audio Section -->
+        <div class="section-rating" id="audio-section">
+            <h3>Audio Description of the Museum History</h3>
+            <div class="stars" data-section="audio">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <ul class="rating-questions">
+                <li>How informative was the audio about the museum's history?</li>
+                <li>Did the audio help you understand the exhibits better?</li>
+                <li>What could improve the audio experience?</li>
+            </ul>
+            <textarea class="feedback-area" placeholder="Share your thoughts about the audio..."></textarea>
+        </div>
+
+        <!-- Quiz Section -->
+        <div class="section-rating" id="quiz-section">
+            <h3>Educational Quiz</h3>
+            <div class="stars" data-section="quiz">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <ul class="rating-questions">
+                <li>How engaging was the quiz?</li>
+                <li>Did the quiz help reinforce your understanding of the museum's history?</li>
+                <li>What would improve the quiz experience?</li>
+            </ul>
+            <textarea class="feedback-area" placeholder="Share your thoughts about the quiz..."></textarea>
+        </div>
+
+        <!-- Mosaic Game Section -->
+        <div class="section-rating" id="mosaic-section">
+            <h3>Create Your Own Mosaic</h3>
+            <div class="stars" data-section="mosaic">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <ul class="rating-questions">
+                <li>How fun was the mosaic creation game?</li>
+                <li>Was the interface easy to use?</li>
+                <li>Would you like to see more customization options for the mosaics?</li>
+            </ul>
+            <textarea class="feedback-area" placeholder="Share your thoughts about the mosaic game..."></textarea>
+        </div>
+
+        <button class="submit-button" onclick="submitRatings()">Submit Ratings</button>
+        
+        <div class="rating-summary" id="rating-summary"></div>
+    </div>
+    <footer>
+        <a href="/">Back to Home</a>
+    </footer>
+    <script>
+             function showVintageAlert(message) {
+    // Remove any existing alerts
+    const existingAlert = document.querySelector('.vintage-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+
+    // Create new alert
+    const alert = document.createElement('div');
+    alert.className = 'vintage-alert';
+    alert.textContent = message;
+
+    // Add to document
+    document.body.appendChild(alert);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        alert.style.animation = 'slideDown 0.5s ease-out reverse forwards';
+        setTimeout(() => {
+            alert.remove();
+        }, 500);
+    }, 3000);
+}
+        // Store ratings for each section
+        const ratings = {
+            exhibits: 0,
+            map: 0,
+            tour: 0,
+            audio: 0,
+            quiz: 0,
+            mosaic: 0
+        };
+
+        // Generate user_id if not already in sessionStorage
+        if (!sessionStorage.getItem('user_id')) {
+            sessionStorage.setItem('user_id', Date.now());  // Generate a unique ID based on current timestamp
+        }
+
+        const userId = sessionStorage.getItem('user_id');  // Retrieve the user_id
+
+        // Add event listeners to all star elements
+        document.querySelectorAll('.stars').forEach(starsContainer => {
+            const stars = starsContainer.querySelectorAll('.star');
+            const section = starsContainer.dataset.section;
+
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    const rating = this.dataset.value;
+                    highlightStars(stars, rating);
+                });
+
+                star.addEventListener('mouseout', function() {
+                    highlightStars(stars, ratings[section]);
+                });
+
+                star.addEventListener('click', function() {
+                    const rating = this.dataset.value;
+                    ratings[section] = rating;
+                    highlightStars(stars, rating);
+                });
+            });
+        });
+
+        function highlightStars(stars, rating) {
+            stars.forEach(star => {
+                const value = star.dataset.value;
+                star.classList.toggle('active', value <= rating);
+            });
+        }
+
+        function submitRatings() {
+            const feedbackAreas = document.querySelectorAll('.feedback-area');
+            const feedback = {};
+
+            feedbackAreas.forEach((area, index) => {
+                const section = ['exhibits', 'map', 'tour', 'audio', 'quiz', 'mosaic'][index];
+                feedback[section] = area.value;
+            });
+
+            // Add user_id to the submission data
+            const dataToSend = {
+                user_id: userId,
+                ratings: ratings,
+                feedback: feedback
+            };
+
+            // Create summary
+            const summary = document.getElementById('rating-summary');
+            summary.innerHTML = `
+                <h3>Thank you for your feedback!</h3>
+                <p>Ratings Summary:</p>
+                <ul>
+                    ${Object.entries(ratings).map(([section, rating]) => `
+                        <li>${section.charAt(0).toUpperCase() + section.slice(1)}: ${rating}/5 stars</li>
+                    `).join('')}
+                </ul>
+            `;
+
+            // Send the data to the Flask API
+            fetch('/ratings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataToSend)  // Send the user_id along with ratings and feedback
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displaySummary(data.summary);
+                } else {
+                    showVintageAlert('Failed to submit rating');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting ratings:', error);
+            });
+        }
+
+        function displaySummary(userSubmission) {
+    const summaryElement = document.getElementById('rating-summary');
+    summaryElement.innerHTML = `
+        <h3>Your Submission:</h3>
+        <ul>
+            <li>Exhibits: ${userSubmission.ratings.exhibits}/5 stars</li>
+            <li>Map: ${userSubmission.ratings.map}/5 stars</li>
+            <li>Tour: ${userSubmission.ratings.tour}/5 stars</li>
+            <li>Audio: ${userSubmission.ratings.audio}/5 stars</li>
+            <li>Quiz: ${userSubmission.ratings.quiz}/5 stars</li>
+            <li>Mosaic: ${userSubmission.ratings.mosaic}/5 stars</li>
+        </ul>
+        <h4>Feedback:</h4>
+        <ul>
+            <li>Exhibits: ${userSubmission.feedback.exhibits}</li>
+            <li>Map: ${userSubmission.feedback.map}</li>
+            <li>Tour: ${userSubmission.feedback.tour}</li>
+            <li>Audio: ${userSubmission.feedback.audio}</li>
+            <li>Quiz: ${userSubmission.feedback.quiz}</li>
+            <li>Mosaic: ${userSubmission.feedback.mosaic}</li>
+        </ul>
+    `;
+}
+
+    </script>
+</body>
+</html>

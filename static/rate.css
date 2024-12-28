@@ -1,0 +1,324 @@
+:root {
+    --primary-beige: #f5e6d3;
+    --dark-beige: #d2b48c;
+    --accent-brown: #8b7355;
+    --deep-brown: #6b4423;
+    --cream: #faf0e6;
+    --text-dark: #463e3f;
+    --gold: #b8860b;
+    --serif-font: 'Cormorant Garamond', serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--serif-font);
+    background-color: var(--cream);
+    color: var(--text-dark);
+    line-height: 1.8;
+    letter-spacing: 0.3px;
+    background-image: url('14.jpeg');
+}
+
+header {
+    background: linear-gradient(to bottom, rgba(139, 115, 85, 0.95), rgba(139, 115, 85, 0.85));
+    border-bottom: 1px solid var(--dark-beige);
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo img {
+    height: 70px;
+    filter: brightness(0.95);
+    transition: filter 0.3s ease;
+}
+
+.logo img:hover {
+    filter: brightness(1.1);
+}
+
+nav {
+    display: flex;
+    gap: 2.5rem;
+}
+
+nav a {
+    color: var(--primary-beige);
+    text-decoration: none;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    padding: 0.5rem 0;
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: var(--gold);
+    transition: width 0.3s ease;
+}
+
+nav a:hover::after {
+    width: 100%;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Rating Section Styles */
+.rating-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: var(--cream);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rating-container h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--deep-brown);
+    margin-bottom: 2rem;
+}
+
+.section-rating {
+    margin-bottom: 2rem;
+}
+
+.section-rating h3 {
+    font-size: 1.8rem;
+    color: var(--deep-brown);
+    margin-bottom: 1rem;
+}
+
+.stars {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.star {
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.star.active {
+    color: var(--gold);
+}
+
+.rating-questions {
+    margin-top: 1rem;
+    list-style: none;
+    padding-left: 0;
+}
+
+.rating-questions li {
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.feedback-area {
+    width: 100%;
+    height: 100px;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--dark-beige);
+    border-radius: 4px;
+    background-color: var(--cream);
+    font-family: var(--serif-font);
+    font-size: 1rem;
+    color: var(--text-dark);
+    transition: border 0.3s ease;
+}
+
+.feedback-area:focus {
+    border-color: var(--accent-brown);
+    outline: none;
+}
+
+/* Button Styles */
+.submit-button {
+    background-color: var(--gold);
+    color: var(--cream);
+    padding: 1rem 2.5rem;
+    border: none;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin: 1.5rem 0;
+    display: block;
+    width: 100%;
+    text-align: center;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: var(--accent-brown);
+}
+
+.rating-summary {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.rating-summary h3 {
+    font-size: 2rem;
+    color: var(--deep-brown);
+    margin-bottom: 1rem;
+}
+
+.rating-summary ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.rating-summary li {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+}
+
+/* Footer Styles */
+footer {
+    background: linear-gradient(to top, rgba(139, 115, 85, 0.95), rgba(139, 115, 85, 0.85));
+    color: var(--primary-beige);
+    padding: 4rem 2rem 2rem;
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.footer-section h3 {
+    color: var(--gold);
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+.social-links a {
+    color: var(--primary-beige);
+    text-decoration: none;
+    margin-right: 1rem;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: var(--gold);
+}
+
+/* Footer */
+footer {
+    background: linear-gradient(to top, rgba(107, 68, 35, 0.95), rgba(107, 68, 35, 0.85));
+    color: var(--cream);
+    padding: 2.5rem;
+    text-align: center;
+    margin-top: 4rem;
+    border-top: 4px solid var(--gold);
+}
+
+footer a {
+    color: var(--cream);
+    text-decoration: none;
+    font-family: var(--serif-font);
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    transition: all 0.4s ease;
+    padding: 0.8rem 1.5rem;
+    border: 1px solid transparent;
+    position: relative;
+}
+
+footer a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--gold);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s ease;
+}
+
+footer a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+/* Custom Alert Styles */
+.vintage-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-beige);
+    border: 1px solid var(--gold);
+    padding: 1rem 2rem;
+    border-radius: 2px;
+    font-family: var(--serif-font);
+    color: var(--deep-brown);
+    box-shadow: 0 4px 12px rgba(107, 68, 35, 0.15);
+    z-index: 1000;
+    min-width: 300px;
+    text-align: center;
+    animation: slideDown 0.5s ease-out forwards;
+}
+
+.vintage-alert::before {
+    content: '※';
+    color: var(--gold);
+    margin-right: 10px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .header-inner {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    nav {
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .rating-container {
+        padding: 1.5rem;
+    }
+
+    .submit-button {
+        padding: 0.8rem 2rem;
+    }
+
+    .rating-summary h3 {
+        font-size: 1.8rem;
+    }
+}

@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from models import db, Category, Feedback, QuizQuestion, Room, User
+from models import db, Category, Feedback, QuizQuestion, Room, User, Rating
 from datetime import datetime
 from random import sample
 from flask_cors import CORS
 import requests, os
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_mail import Mail, Message
+from sqlalchemy import func
+
 
 API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'  
 CX = '642ef41d594bc4032'
@@ -45,6 +46,10 @@ def create():
 @app.route('/map')
 def map_page():
     return render_template('map.html')
+
+@app.route('/rate')
+def rate():
+    return render_template('rate.html')
 
 @app.route('/categories-page')
 def categories_page():
@@ -554,6 +559,126 @@ def delete_user_by_id(user_id):
         db.session.rollback()
         return jsonify({'error': 'Database error', 'details': str(e)}), 500
     
+
+
+
+@app.route('/ratings', methods=['POST'])
+def submit_rating():
+    try:
+        data = request.get_json()
+
+        if not data or 'ratings' not in data or 'feedback' not in data:
+            return jsonify({
+                'success': False,
+                'message': 'Rating data and feedback are required'
+            }), 400
+        
+        user_id = data.get('user_id')  # Make sure the request contains user_id
+
+        # Check if the user has already rated
+        existing_rating = Rating.query.filter_by(user_id=user_id).first()
+        if existing_rating:
+            return jsonify({
+                'success': False,
+                'message': 'You have already submitted your rating.'
+            }), 400
+
+        # Create new rating entry
+        new_rating = Rating(
+            user_id=user_id,  # Add user_id to the rating
+            exhibits_rating=data['ratings'].get('exhibits'),
+            map_rating=data['ratings'].get('map'),
+            tour_rating=data['ratings'].get('tour'),
+            audio_rating=data['ratings'].get('audio'),
+            quiz_rating=data['ratings'].get('quiz'),
+            mosaic_rating=data['ratings'].get('mosaic'),
+            exhibits_feedback=data['feedback'].get('exhibits', ''),
+            map_feedback=data['feedback'].get('map', ''),
+            tour_feedback=data['feedback'].get('tour', ''),
+            audio_feedback=data['feedback'].get('audio', ''),
+            quiz_feedback=data['feedback'].get('quiz', ''),
+            mosaic_feedback=data['feedback'].get('mosaic', '')
+        )
+
+        db.session.add(new_rating)
+        db.session.commit()
+        
+        # Get updated summary
+        summary = get_rating_summary()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Rating submitted successfully',
+            'summary': summary
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+
+@app.route('/ratings/summary', methods=['GET'])
+def get_rating_summary():
+    try:
+        summary = db.session.query(
+            func.avg(Rating.exhibits_rating).label('avg_exhibits'),
+            func.avg(Rating.map_rating).label('avg_map'),
+            func.avg(Rating.tour_rating).label('avg_tour'),
+            func.avg(Rating.audio_rating).label('avg_audio'),
+            func.avg(Rating.quiz_rating).label('avg_quiz'),
+            func.avg(Rating.mosaic_rating).label('avg_mosaic'),
+            func.count(Rating.id).label('total_ratings')
+        ).first()
+
+        # Ensure this returns a dictionary, not a Response object
+        return {
+            'exhibits': round(float(summary.avg_exhibits or 0), 1),
+            'map': round(float(summary.avg_map or 0), 1),
+            'tour': round(float(summary.avg_tour or 0), 1),
+            'audio': round(float(summary.avg_audio or 0), 1),
+            'quiz': round(float(summary.avg_quiz or 0), 1),
+            'mosaic': round(float(summary.avg_mosaic or 0), 1),
+            'total_ratings': summary.total_ratings
+        }
+
+    except Exception as e:
+        # Ensure the error response is also a dictionary
+        return {
+            'success': False,
+            'message': str(e)
+        }, 500
+
+@app.route('/ratings/feedback', methods=['GET'])
+def get_recent_feedback():
+    try:
+        # Get recent feedback entries
+        recent_feedback = Rating.query\
+            .filter(db.or_(
+                Rating.exhibits_feedback != None,
+                Rating.map_feedback != None,
+                Rating.tour_feedback != None,
+                Rating.audio_feedback != None,
+                Rating.quiz_feedback != None,
+                Rating.mosaic_feedback != None
+            ))\
+            .order_by(Rating.created_at.desc())\
+            .limit(10)\
+            .all()
+            
+        return jsonify({
+            'success': True,
+            'data': [rating.to_dict() for rating in recent_feedback]
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
 if __name__ == "__main__":
     with app.app_context():
        

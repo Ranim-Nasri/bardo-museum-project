@@ -111,3 +111,50 @@ class User(db.Model):
     
     def __repr__(self):
         return f'<User {self.email}>'
+
+class Rating(db.Model):
+    __tablename__ = 'ratings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)  # Add user_id to link ratings to a user
+    
+    # Ratings for each section (1-5 stars)
+    exhibits_rating = db.Column(db.Integer)
+    map_rating = db.Column(db.Integer)
+    tour_rating = db.Column(db.Integer)
+    audio_rating = db.Column(db.Integer)
+    quiz_rating = db.Column(db.Integer)
+    mosaic_rating = db.Column(db.Integer)
+    
+    # Feedback text for each section
+    exhibits_feedback = db.Column(db.Text)
+    map_feedback = db.Column(db.Text)
+    tour_feedback = db.Column(db.Text)
+    audio_feedback = db.Column(db.Text)
+    quiz_feedback = db.Column(db.Text)
+    mosaic_feedback = db.Column(db.Text)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,  # Include user_id in the dictionary for response
+            'ratings': {
+                'exhibits': self.exhibits_rating,
+                'map': self.map_rating,
+                'tour': self.tour_rating,
+                'audio': self.audio_rating,
+                'quiz': self.quiz_rating,
+                'mosaic': self.mosaic_rating
+            },
+            'feedback': {
+                'exhibits': self.exhibits_feedback,
+                'map': self.map_feedback,
+                'tour': self.tour_feedback,
+                'audio': self.audio_feedback,
+                'quiz': self.quiz_feedback,
+                'mosaic': self.mosaic_feedback
+            },
+            'created_at': self.created_at.isoformat()
+        }
