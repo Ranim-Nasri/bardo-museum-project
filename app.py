@@ -7,6 +7,7 @@ from flask_cors import CORS
 import requests, os
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from sentiment import sentiment_analysis_api
 
 
 API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'  
@@ -22,6 +23,9 @@ CORS(app)
 
 
 db.init_app(app)
+
+app.register_blueprint(sentiment_analysis_api, url_prefix='/api')  # You can set a URL prefix if needed
+
 
 @app.route('/')
 def landing():
