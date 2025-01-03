@@ -16,7 +16,7 @@ CX = '642ef41d594bc4032'
 app = Flask(__name__)
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bardo_museum.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Postgres25@localhost/Bardo Museum'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'Ranim*9*Nasri'
 CORS(app) 
@@ -24,19 +24,12 @@ CORS(app)
 
 db.init_app(app)
 
-app.register_blueprint(sentiment_analysis_api, url_prefix='/api')  # You can set a URL prefix if needed
+app.register_blueprint(sentiment_analysis_api, url_prefix='/api')
 
 
 @app.route('/')
 def landing():
     return render_template('index.html')
-
-@app.route('/home')
-def home():
-    if 'user_id' not in session:
-        return redirect('/auth')
-    return render_template('index.html')
-
 
 @app.route('/auth')
 def auth():
@@ -46,26 +39,38 @@ def auth():
 def create():
     return render_template('create.html')
 
-
 @app.route('/map')
 def map_page():
     return render_template('map.html')
 
 @app.route('/rate')
 def rate():
+    if 'user_id' not in session:
+        return redirect('/auth')
     return render_template('rate.html')
+
+@app.route('/home')
+def home():
+    if 'user_id' not in session:
+        return redirect('/auth')
+    return render_template('index.html')
 
 @app.route('/categories-page')
 def categories_page():
     try:
+        # Assuming 'Category' is your SQLAlchemy model and you have already imported it
         categories = Category.query.all()
         return render_template('categories.html', categories=categories)
     except SQLAlchemyError as e:
         return f"An error occurred: {str(e)}"
     
-@app.route('/')
-def authentication():
-    return render_template('auth.html')
+@app.route('/auth/logout')
+def logout():
+    session.pop('user_id', None)  # Clear the session
+    # Redirect to the homepage with a query parameter
+    return redirect(url_for('landing') + "?logged_out=true")
+
+    
 
 
     
@@ -217,39 +222,48 @@ def add_quiz_question():
     if not data:
         return jsonify({"error": "Invalid input. No data provided."}), 400
 
-    try:
-        # Extracting data for the question
-        question_text = data.get('question_text')
-        option_a = data.get('option_a')
-        option_b = data.get('option_b')
-        option_c = data.get('option_c')
-        option_d = data.get('option_d')
-        correct_option = data.get('correct_option')
+    def validate_and_create_question(question_data):
+        question_text = question_data.get('question_text')
+        option_a = question_data.get('option_a')
+        option_b = question_data.get('option_b')
+        option_c = question_data.get('option_c')
+        option_d = question_data.get('option_d')
+        correct_option = question_data.get('correct_option')
 
-        # Validating the input data
         if not all([question_text, option_a, option_b, option_c, option_d, correct_option]):
-            return jsonify({"error": "All fields are required."}), 400
-        if correct_option not in ['a', 'b', 'c', 'd']:
-            return jsonify({"error": "Correct option must be one of 'a', 'b', 'c', 'd'."}), 400
+            return None, "All fields are required."
 
-        # Creating a new QuizQuestion instance
-        quiz_question = QuizQuestion(
+        if correct_option not in ['a', 'b', 'c', 'd']:
+            return None, "Correct option must be one of 'a', 'b', 'c', 'd'."
+
+        return QuizQuestion(
             question_text=question_text,
             option_a=option_a,
             option_b=option_b,
             option_c=option_c,
             option_d=option_d,
             correct_option=correct_option
-        )
+        ), None
 
-        # Adding and committing to the database
+    if isinstance(data, dict):  # Single question
+        data = [data]  # Convert to list for uniform processing
+
+    created_questions = []
+    for question_data in data:
+        quiz_question, error = validate_and_create_question(question_data)
+        if error:
+            return jsonify({"error": error}), 400
+
         db.session.add(quiz_question)
-        db.session.commit()
+        created_questions.append(quiz_question.to_dict())
 
-        return jsonify({"message": "Quiz question added successfully!", "question": quiz_question.to_dict()}), 201
+    try:
+        db.session.commit()
+        return jsonify({"message": "Quiz questions added successfully!", "questions": created_questions}), 201
     except SQLAlchemyError as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/quiz_questions', methods=['GET'])
 def get_all_quiz_questions():
@@ -492,11 +506,9 @@ def signup():
         )
         db.session.add(new_user)
         db.session.commit()
-        
         session['user_id'] = new_user.id
         session.permanent = False  # Session expires when browser closes
         return jsonify({'message': 'Successfully registered'}), 201
-    
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
@@ -506,21 +518,19 @@ def signin():
     data = request.json
     try:
         user = User.query.filter_by(email=data['email']).first()
-        
         if not user:
             return jsonify({'error': 'Invalid email or password'}), 401
-            
         if check_password_hash(user.password, data['password']):
             session['user_id'] = user.id
             session.permanent = False  # Session expires when browser closes
             return jsonify({'message': 'Successfully logged in'}), 200
-        
         return jsonify({'error': 'Invalid email or password'}), 401
-    
     except Exception as e:
         print("Error during signin:", e)  # Debugging
         return jsonify({'error': str(e)}), 500
 
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 
@@ -565,31 +575,36 @@ def delete_user_by_id(user_id):
     
 
 
-
 @app.route('/ratings', methods=['POST'])
 def submit_rating():
+    if 'user_id' not in session:
+        return jsonify({
+            'success': False,
+            'message': 'Please sign in to submit ratings'
+        }), 401
+
     try:
         data = request.get_json()
-
         if not data or 'ratings' not in data or 'feedback' not in data:
             return jsonify({
                 'success': False,
                 'message': 'Rating data and feedback are required'
             }), 400
-        
-        user_id = data.get('user_id')  # Make sure the request contains user_id
 
-        # Check if the user has already rated
+        user_id = session['user_id']
+
+        # Assume you want to allow one rating per user forever:
+        print(f"Session User ID: {session.get('user_id')}")
         existing_rating = Rating.query.filter_by(user_id=user_id).first()
         if existing_rating:
-            return jsonify({
-                'success': False,
-                'message': 'You have already submitted your rating.'
-            }), 400
+            print(f"Found existing rating for user ID {user_id}: {existing_rating.id}")
+            return jsonify({'success': False, 'message': 'You have already submitted your rating.'}), 400
+        else:
+            print("No existing rating found, proceeding to create a new one.")
 
         # Create new rating entry
         new_rating = Rating(
-            user_id=user_id,  # Add user_id to the rating
+            user_id=user_id,
             exhibits_rating=data['ratings'].get('exhibits'),
             map_rating=data['ratings'].get('map'),
             tour_rating=data['ratings'].get('tour'),
@@ -601,28 +616,25 @@ def submit_rating():
             tour_feedback=data['feedback'].get('tour', ''),
             audio_feedback=data['feedback'].get('audio', ''),
             quiz_feedback=data['feedback'].get('quiz', ''),
-            mosaic_feedback=data['feedback'].get('mosaic', '')
+            mosaic_feedback=data['feedback'].get('mosaic', ''),
+            created_at=datetime.utcnow()
         )
 
         db.session.add(new_rating)
         db.session.commit()
-        
-        # Get updated summary
-        summary = get_rating_summary()
-        
+
         return jsonify({
             'success': True,
             'message': 'Rating submitted successfully',
-            'summary': summary
+            'summary': new_rating.to_dict()
         }), 201
-        
+
     except Exception as e:
         db.session.rollback()
         return jsonify({
             'success': False,
             'message': str(e)
         }), 500
-
 
 @app.route('/ratings/summary', methods=['GET'])
 def get_rating_summary():
@@ -654,7 +666,7 @@ def get_rating_summary():
             'success': False,
             'message': str(e)
         }, 500
-
+    
 @app.route('/ratings/feedback', methods=['GET'])
 def get_recent_feedback():
     try:

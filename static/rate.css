@@ -392,6 +392,7 @@ footer a:hover::after {
     }
 }
 
+/* Custom Alert Styles */
 .vintage-alert {
     position: fixed;
     top: 20px;
@@ -399,33 +400,21 @@ footer a:hover::after {
     transform: translateX(-50%);
     background: var(--primary-beige);
     border: 1px solid var(--gold);
-    padding: 1.5rem 2.5rem;
+    padding: 1rem 2rem;
     border-radius: 2px;
-    font-family: var(--decorative-font);
+    font-family: var(--serif-font);
     color: var(--deep-brown);
-    box-shadow: 0 4px 15px rgba(107, 68, 35, 0.15);
+    box-shadow: 0 4px 12px rgba(107, 68, 35, 0.15);
     z-index: 1000;
     min-width: 300px;
     text-align: center;
     animation: slideDown 0.5s ease-out forwards;
-    position: relative;
-}
-
-.vintage-alert::before,
-.vintage-alert::after {
-    content: '※';
-    color: var(--gold);
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 .vintage-alert::before {
-    left: 15px;
-}
-
-.vintage-alert::after {
-    right: 15px;
+    content: '※';
+    color: var(--gold);
+    margin-right: 10px;
 }
 
 @keyframes slideDown {

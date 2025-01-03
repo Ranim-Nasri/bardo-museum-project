@@ -23,6 +23,8 @@
                 <a href="/auth">Register</a>
                 <a href="/create">Create</a>
                 <a href="/rate">Rate</a>
+                <a href="/auth/logout">Logout</a>
+
             </nav>
         </div>
     </header>
@@ -370,6 +372,19 @@ function showResults() {
         </div>
     `;
 }
+
+    window.onload = function() {
+        // Check if the 'logged_out' query parameter is set to 'true'
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('logged_out') === 'true') {
+            showCustomAlert('You have been logged out successfully!');
+            // Optionally, clear the query parameters from the URL
+            history.pushState(null, '', location.href.split('?')[0]);
+        }
+    }
+
+
+
 
     </script>
     

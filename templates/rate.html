@@ -198,53 +198,45 @@
         }
 
         function submitRatings() {
-            const feedbackAreas = document.querySelectorAll('.feedback-area');
-            const feedback = {};
-
-            feedbackAreas.forEach((area, index) => {
-                const section = ['exhibits', 'map', 'tour', 'audio', 'quiz', 'mosaic'][index];
-                feedback[section] = area.value;
-            });
-
-            // Add user_id to the submission data
-            const dataToSend = {
-                user_id: userId,
-                ratings: ratings,
-                feedback: feedback
-            };
-
-            // Create summary
-            const summary = document.getElementById('rating-summary');
-            summary.innerHTML = `
-                <h3>Thank you for your feedback!</h3>
-                <p>Ratings Summary:</p>
-                <ul>
-                    ${Object.entries(ratings).map(([section, rating]) => `
-                        <li>${section.charAt(0).toUpperCase() + section.slice(1)}: ${rating}/5 stars</li>
-                    `).join('')}
-                </ul>
-            `;
-
-            // Send the data to the Flask API
-            fetch('/ratings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dataToSend)  // Send the user_id along with ratings and feedback
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    displaySummary(data.summary);
-                } else {
-                    showVintageAlert('Failed to submit rating');
-                }
-            })
-            .catch(error => {
-                console.error('Error submitting ratings:', error);
-            });
+    fetch('/ratings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            ratings: ratings,
+            feedback: getFeedback()
+        })
+    })
+    .then(response => {
+        if (response.status === 401) {
+            // Redirect to auth page if not authenticated
+            window.location.href = '/auth';
+            return;
         }
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.success) {
+            displaySummary(data.summary);
+        } else if (data && data.message) {
+            showVintageAlert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting ratings:', error);
+        showVintageAlert('An error occurred while submitting your ratings');
+    });
+}
+
+function getFeedback() {
+    const feedback = {};
+    document.querySelectorAll('.feedback-area').forEach((area, index) => {
+        const section = ['exhibits', 'map', 'tour', 'audio', 'quiz', 'mosaic'][index];
+        feedback[section] = area.value;
+    });
+    return feedback;
+}
 
         function displaySummary(userSubmission) {
     const summaryElement = document.getElementById('rating-summary');

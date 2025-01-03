@@ -25,6 +25,7 @@ class Category(db.Model):
             "num_exhibits": self.num_exhibits
            
         }
+    
 class Feedback(db.Model):
     __tablename__ = 'feedback'
 
@@ -50,6 +51,8 @@ class Feedback(db.Model):
             "visit_date": self.visit_date.isoformat(),
             "feedback_text": self.feedback_text,
         }
+    
+
 class QuizQuestion(db.Model):
     __tablename__ = 'quiz_questions'
 
@@ -83,7 +86,9 @@ class QuizQuestion(db.Model):
         }
 import json
 
+
 class Room(db.Model):
+    __tablename__ = 'rooms'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     level = db.Column(db.Integer, nullable=False)
@@ -103,7 +108,9 @@ class Room(db.Model):
         """Serialize the list of connections into a string."""
         self.connections = json.dumps(value)
 
+
 class User(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
@@ -116,8 +123,8 @@ class Rating(db.Model):
     __tablename__ = 'ratings'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)  # Add user_id to link ratings to a user
-    
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('ratings', lazy=True))
     # Ratings for each section (1-5 stars)
     exhibits_rating = db.Column(db.Integer)
     map_rating = db.Column(db.Integer)

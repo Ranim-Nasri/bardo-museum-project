@@ -133,27 +133,76 @@ body {
 
 /* Footer */
 footer {
-    background: linear-gradient(to top, rgba(139, 115, 85, 0.95), rgba(139, 115, 85, 0.85));
-    color: var(--primary-beige);
-    padding: 2rem;
+    background: linear-gradient(to top, 
+        rgba(107, 68, 35, 0.95), 
+        rgba(107, 68, 35, 0.85)
+    );
+    color: var(--cream);
+    padding: 3rem 2rem;
     text-align: center;
     margin-top: 4rem;
+    border-top: double 4px var(--gold);
+    position: relative;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--gold),
+        var(--gold) 10px,
+        transparent 10px,
+        transparent 20px
+    );
+    opacity: 0.3;
 }
 
 footer a {
     color: var(--cream);
     text-decoration: none;
-    font-size: 1.1rem;
-    letter-spacing: 2px;
-    transition: all 0.3s ease;
-    padding: 0.5rem 1rem;
-    border: 1px solid transparent;
+    font-family: var(--decorative-font);
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    transition: all 0.4s ease;
+    padding: 0.8rem 1.5rem;
+    display: inline-block;
+    position: relative;
 }
 
-footer a:hover {
+footer a::before,
+footer a::after {
+    content: '✦';
     color: var(--gold);
-    border-color: var(--gold);
+    position: absolute;
+    opacity: 0;
+    transition: all 0.4s ease;
 }
+
+footer a::before {
+    left: 0;
+    transform: translateX(-10px);
+}
+
+footer a::after {
+    right: 0;
+    transform: translateX(10px);
+}
+
+footer a:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+footer a:hover::after {
+    opacity: 1;
+    transform: translateX(0);
+}
+
 
 .custom-alert {
     position: fixed;
