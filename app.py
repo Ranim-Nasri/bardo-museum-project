@@ -8,7 +8,7 @@ import requests, os
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from sentiment import sentiment_analysis_api
-
+from flask_smorest import Api
 
 API_KEY = 'AIzaSyBVezeNR4Dn_K1ETIrnBJnDy9iyIKVc-bE'  
 CX = '642ef41d594bc4032'
@@ -697,10 +697,12 @@ def get_recent_feedback():
 
 if __name__ == "__main__":
     with app.app_context():
-       
         print("Creating tables...")
         db.create_all()
         print("Tables created successfully.")
-        
-
-    app.run(debug=True)
+    app.run(
+        ssl_context=(
+            '127.0.0.1.pem',  # certificate file
+            '127.0.0.1-key.pem'  # private key file
+        )
+    )

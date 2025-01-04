@@ -1,0 +1,4 @@
+FLASK_APP=app.py
+FLASK_ENV=development
+FLASK_RUN_CERT=127.0.0.1.pem
+FLASK_RUN_KEY=127.0.0.1-key.pem
