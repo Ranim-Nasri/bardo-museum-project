@@ -124,7 +124,7 @@ class Rating(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('ratings', lazy=True))
+    user = db.relationship('User', backref=db.backref('ratings', lazy=True, cascade='all, delete-orphan'))
     # Ratings for each section (1-5 stars)
     exhibits_rating = db.Column(db.Integer)
     map_rating = db.Column(db.Integer)
