@@ -1,0 +1,25 @@
+Bardo Museum Website
+
+This project is a website dedicated to the Bardo Museum in Tunisia, primarily for virtual visitors. It includes a variety of interactive features to explore the museum and its exhibits, including:
+
+Exhibit Categories: View descriptions of different exhibit categories with an option to fetch more information from Google.
+
+Recreated Map: A digital map of the museum for easy navigation.
+
+3D Tour: A 3D virtual tour for desktop users and a QR code to access it for mobile users.
+
+Audio History: An audio file that narrates the history of the museum.
+
+Quiz: A quiz based on the audio history to test visitors' knowledge.
+
+Mosaic Game: A fun interactive game where users can create their own mosaics using the museum’s theme colors, and save their creations.
+
+Onsite Feedback: A feedback form where onsite visitors can share their experience, with feedback displayed on the website.
+
+User Authentication: A sign-in/sign-up system allowing users to save their progress, with password security through hashed passwords and a logout feature.
+Tech Stack
+
+Backend: Python (Flask)
+Frontend: HTML, CSS, JavaScript
+Database: PostgreSQL
+Containerization: Docker
